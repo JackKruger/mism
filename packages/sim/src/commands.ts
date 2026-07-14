@@ -1,7 +1,10 @@
-import type { PersonId } from "./core/ids.js";
+import type { ObjectId, PersonId } from "./core/ids.js";
 import type { GameSpeed } from "./core/clock.js";
+import type { Rotation } from "./objects/objInstance.js";
 import type { SimState } from "./state.js";
+import type { Tile } from "./world/lot.js";
 import { asPersonId } from "./core/ids.js";
+import { canPlace, placeObject, removeObject } from "./objects/placement.js";
 import { findPath } from "./path/astar.js";
 import { isWalkable } from "./world/lot.js";
 import { personTile } from "./people/person.js";
@@ -9,16 +12,21 @@ import { personTile } from "./people/person.js";
 export type Command =
   | { t: "WalkTo"; person: PersonId; x: number; y: number }
   | { t: "SetSpeed"; speed: GameSpeed }
-  | { t: "AddPerson"; name: string; x: number; y: number };
+  | { t: "AddPerson"; name: string; x: number; y: number }
+  | { t: "PlaceObject"; defId: string; tile: Tile; rotation: Rotation }
+  | { t: "RemoveObject"; object: ObjectId };
 
 export type CommandError =
   | "unknown-person"
   | "unreachable"
   | "out-of-bounds"
-  | "tile-blocked";
+  | "tile-blocked"
+  | "unknown-def"
+  | "unknown-object"
+  | "invalid-placement";
 
 export type CommandResult =
-  | { ok: true; personId?: PersonId }
+  | { ok: true; personId?: PersonId; objectId?: ObjectId }
   | { ok: false; error: CommandError };
 
 export function applyCommand(state: SimState, cmd: Command): CommandResult {
@@ -52,6 +60,25 @@ export function applyCommand(state: SimState, cmd: Command): CommandResult {
       if (path === null) return { ok: false, error: "unreachable" };
       person.path = path;
       person.pathNavVersion = state.lot.navVersion;
+      return { ok: true };
+    }
+
+    case "PlaceObject": {
+      const def = state.contentIndex.get(cmd.defId);
+      if (!def) return { ok: false, error: "unknown-def" };
+      if (!canPlace(state, def, cmd.tile, cmd.rotation)) {
+        return { ok: false, error: "invalid-placement" };
+      }
+      const obj = placeObject(state, def, cmd.tile, cmd.rotation);
+      return { ok: true, objectId: obj.id };
+    }
+
+    case "RemoveObject": {
+      const obj = state.objects.get(cmd.object);
+      if (!obj) return { ok: false, error: "unknown-object" };
+      const def = state.contentIndex.get(obj.defId);
+      if (!def) return { ok: false, error: "unknown-def" };
+      removeObject(state, obj, def);
       return { ok: true };
     }
   }

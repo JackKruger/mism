@@ -1,8 +1,10 @@
-import type { PersonId } from "./core/ids.js";
+import type { ObjectId, PersonId } from "./core/ids.js";
 import type { Clock } from "./core/clock.js";
 import type { Lot } from "./world/lot.js";
+import type { ObjInstance } from "./objects/objInstance.js";
 import type { Person } from "./people/person.js";
 import type { RngState } from "./core/rng.js";
+import type { SimContent, SimObjectDef } from "./objects/content.js";
 import { Rng } from "./core/rng.js";
 import { createClock } from "./core/clock.js";
 import { createLot } from "./world/lot.js";
@@ -16,6 +18,12 @@ export interface SimState {
   clock: Clock;
   lot: Lot;
   people: Store<PersonId, Person>;
+  objects: Store<ObjectId, ObjInstance>;
+  /**
+   * Static object defs by defId — provided at createSim, not serialized.
+   * Lookup only; never iterate it inside sim code (determinism rule).
+   */
+  contentIndex: ReadonlyMap<string, SimObjectDef>;
   nextEntityId: number;
 }
 
@@ -25,16 +33,21 @@ export interface SerializedState {
   clock: Clock;
   lot: { size: number; terrain: number[]; blocked: number[]; navVersion: number };
   people: Person[];
+  objects: ObjInstance[];
   nextEntityId: number;
 }
 
-export function createState(seed: number): SimState {
+export function createState(seed: number, content?: SimContent): SimState {
+  const contentIndex = new Map<string, SimObjectDef>();
+  for (const def of content?.objects ?? []) contentIndex.set(def.id, def);
   return {
     version: SAVE_VERSION,
     rng: Rng.fromSeed(seed),
     clock: createClock(),
     lot: createLot(),
     people: new Store<PersonId, Person>(),
+    objects: new Store<ObjectId, ObjInstance>(),
+    contentIndex,
     nextEntityId: 1,
   };
 }
@@ -51,15 +64,16 @@ export function serializeState(state: SimState): SerializedState {
       navVersion: state.lot.navVersion,
     },
     people: [...state.people.values()].map((p) => ({ ...p, path: p.path.map((t) => ({ ...t })) })),
+    objects: [...state.objects.values()].map((o) => ({ ...o, tile: { ...o.tile } })),
     nextEntityId: state.nextEntityId,
   };
 }
 
-export function deserializeState(data: SerializedState): SimState {
+export function deserializeState(data: SerializedState, content?: SimContent): SimState {
   if (data.version !== SAVE_VERSION) {
     throw new Error(`Unsupported save version ${data.version} (expected ${SAVE_VERSION})`);
   }
-  const state = createState(0);
+  const state = createState(0, content);
   state.rng = new Rng(data.rng);
   state.clock = { ...data.clock };
   state.lot.terrain.set(data.lot.terrain);
@@ -67,6 +81,9 @@ export function deserializeState(data: SerializedState): SimState {
   state.lot.navVersion = data.lot.navVersion;
   for (const p of data.people) {
     state.people.add(p.id, { ...p, path: p.path.map((t) => ({ ...t })) });
+  }
+  for (const o of data.objects) {
+    state.objects.add(o.id, { ...o, tile: { ...o.tile } });
   }
   state.nextEntityId = data.nextEntityId;
   return state;
