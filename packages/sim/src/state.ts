@@ -3,9 +3,11 @@ import type { Clock } from "./core/clock.js";
 import type { Lot } from "./world/lot.js";
 import type { Person } from "./people/person.js";
 import type { RngState } from "./core/rng.js";
+import type { SimEvent } from "./core/events.js";
 import { Rng } from "./core/rng.js";
 import { createClock } from "./core/clock.js";
 import { createLot } from "./world/lot.js";
+import { EventLog } from "./core/events.js";
 import { Store } from "./core/store.js";
 
 export const SAVE_VERSION = 1;
@@ -16,6 +18,7 @@ export interface SimState {
   clock: Clock;
   lot: Lot;
   people: Store<PersonId, Person>;
+  eventLog: EventLog;
   nextEntityId: number;
 }
 
@@ -25,6 +28,7 @@ export interface SerializedState {
   clock: Clock;
   lot: { size: number; terrain: number[]; blocked: number[]; navVersion: number };
   people: Person[];
+  events: SimEvent[];
   nextEntityId: number;
 }
 
@@ -35,9 +39,17 @@ export function createState(seed: number): SimState {
     clock: createClock(),
     lot: createLot(),
     people: new Store<PersonId, Person>(),
+    eventLog: new EventLog(),
     nextEntityId: 1,
   };
 }
+
+const clonePerson = (p: Person): Person => ({
+  ...p,
+  path: p.path.map((t) => ({ ...t })),
+  needs: { ...p.needs },
+  personality: { ...p.personality },
+});
 
 export function serializeState(state: SimState): SerializedState {
   return {
@@ -50,7 +62,8 @@ export function serializeState(state: SimState): SerializedState {
       blocked: Array.from(state.lot.blocked),
       navVersion: state.lot.navVersion,
     },
-    people: [...state.people.values()].map((p) => ({ ...p, path: p.path.map((t) => ({ ...t })) })),
+    people: [...state.people.values()].map(clonePerson),
+    events: state.eventLog.toArray(),
     nextEntityId: state.nextEntityId,
   };
 }
@@ -66,8 +79,9 @@ export function deserializeState(data: SerializedState): SimState {
   state.lot.blocked.set(data.lot.blocked);
   state.lot.navVersion = data.lot.navVersion;
   for (const p of data.people) {
-    state.people.add(p.id, { ...p, path: p.path.map((t) => ({ ...t })) });
+    state.people.add(p.id, clonePerson(p));
   }
+  state.eventLog = EventLog.from(data.events);
   state.nextEntityId = data.nextEntityId;
   return state;
 }

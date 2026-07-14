@@ -7,30 +7,39 @@ import { buildSnapshot } from "./snapshot.js";
 import { createState, deserializeState, serializeState } from "./state.js";
 import { hashValue } from "./save/hash.js";
 import { movementSystem } from "./systems/movement.js";
+import { needsDecaySystem } from "./systems/needsDecay.js";
 
 export type { Command, CommandResult } from "./commands.js";
 export type { SimSnapshot, PersonView } from "./snapshot.js";
 export type { GameSpeed } from "./core/clock.js";
 export type { SerializedState } from "./state.js";
 export type { PersonId } from "./core/ids.js";
+export type { MotiveName, Needs } from "./people/needs.js";
+export type { Personality, TraitName } from "./people/personality.js";
+export type { PersonStatus } from "./people/person.js";
+export type { SimEvent, SimEventType } from "./core/events.js";
 export { TICKS_PER_SIM_MINUTE } from "./core/clock.js";
 export { LOT_SIZE } from "./world/lot.js";
+export { TUNING } from "./tuning.js";
 
 export interface SimHandle {
   /** Advance the simulation by n fixed ticks (default 1). */
   tick(n?: number): void;
   apply(cmd: Command): CommandResult;
-  snapshot(): SimSnapshot;
+  /** Build a render snapshot; pass sinceTick to only include newer events. */
+  snapshot(sinceTick?: number): SimSnapshot;
   serialize(): SerializedState;
   hashState(): string;
 }
 
 /**
  * System pipeline — fixed order, one pass per tick. New systems slot in here
- * (see ARCHITECTURE.md §3.3 for the target pipeline).
+ * (see ARCHITECTURE.md §3.3 for the target pipeline):
+ * clock → needs decay (incl. mood + failure states) → movement.
  */
 function runTick(state: SimState): void {
   advanceTick(state.clock);
+  needsDecaySystem(state);
   movementSystem(state);
 }
 
@@ -42,8 +51,8 @@ function makeHandle(state: SimState): SimHandle {
     apply(cmd: Command): CommandResult {
       return applyCommand(state, cmd);
     },
-    snapshot(): SimSnapshot {
-      return buildSnapshot(state);
+    snapshot(sinceTick?: number): SimSnapshot {
+      return buildSnapshot(state, sinceTick);
     },
     serialize(): SerializedState {
       return serializeState(state);

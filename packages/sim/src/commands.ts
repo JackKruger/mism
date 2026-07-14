@@ -1,21 +1,25 @@
 import type { PersonId } from "./core/ids.js";
 import type { GameSpeed } from "./core/clock.js";
+import type { Personality } from "./people/personality.js";
 import type { SimState } from "./state.js";
 import { asPersonId } from "./core/ids.js";
 import { findPath } from "./path/astar.js";
 import { isWalkable } from "./world/lot.js";
-import { personTile } from "./people/person.js";
+import { createPerson, personTile } from "./people/person.js";
+import { defaultPersonality, isValidPersonality } from "./people/personality.js";
 
 export type Command =
   | { t: "WalkTo"; person: PersonId; x: number; y: number }
   | { t: "SetSpeed"; speed: GameSpeed }
-  | { t: "AddPerson"; name: string; x: number; y: number };
+  | { t: "AddPerson"; name: string; x: number; y: number; personality?: Personality };
 
 export type CommandError =
   | "unknown-person"
   | "unreachable"
   | "out-of-bounds"
-  | "tile-blocked";
+  | "tile-blocked"
+  | "invalid-personality"
+  | "person-incapacitated";
 
 export type CommandResult =
   | { ok: true; personId?: PersonId }
@@ -30,23 +34,20 @@ export function applyCommand(state: SimState, cmd: Command): CommandResult {
 
     case "AddPerson": {
       if (!isWalkable(state.lot, cmd.x, cmd.y)) return { ok: false, error: "tile-blocked" };
+      const personality = cmd.personality ?? defaultPersonality();
+      if (!isValidPersonality(personality)) return { ok: false, error: "invalid-personality" };
       const id = asPersonId(state.nextEntityId++);
-      state.people.add(id, {
+      state.people.add(
         id,
-        name: cmd.name,
-        px: cmd.x,
-        py: cmd.y,
-        facing: "se",
-        anim: "idle",
-        path: [],
-        pathNavVersion: state.lot.navVersion,
-      });
+        createPerson(id, cmd.name, cmd.x, cmd.y, { ...personality }, state.lot.navVersion),
+      );
       return { ok: true, personId: id };
     }
 
     case "WalkTo": {
       const person = state.people.get(cmd.person);
       if (!person) return { ok: false, error: "unknown-person" };
+      if (person.status !== "normal") return { ok: false, error: "person-incapacitated" };
       if (!isWalkable(state.lot, cmd.x, cmd.y)) return { ok: false, error: "tile-blocked" };
       const path = findPath(state.lot, personTile(person), { x: cmd.x, y: cmd.y });
       if (path === null) return { ok: false, error: "unreachable" };
