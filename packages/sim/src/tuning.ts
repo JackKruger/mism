@@ -54,6 +54,19 @@ export const TUNING = {
     negativeCurveSlope: 1.5,
   },
 
+  autonomy: {
+    /** Idle folk re-plan at most once per this many ticks (~2 sim-min). */
+    replanTicks: 40,
+    /** Distance falloff: attenuation = 1 / (1 + dist / attenuationTiles) (§3.5). */
+    attenuationTiles: 24,
+    /** Score span of the ±5% jitter: ×(1 + (rng − 0.5) × jitterSpan) (§3.5). */
+    jitterSpan: 0.1,
+    /** Ads scoring below this are ignored so contented folk idle (§3.6). */
+    minScore: 0.5,
+    /** A failed action's ad is suppressed for this many sim-minutes (§3.7). */
+    suppressMinutes: 60,
+  },
+
   failures: {
     /** Hygiene hit when a bladder accident happens. */
     bladderAccidentHygienePenalty: 50,

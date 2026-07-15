@@ -14,6 +14,7 @@ const CONTENT: SimContent = {
       id: "fridge",
       footprint: [1, 1],
       slots: [{ type: "stand", offset: [0, 1], facing: "object" }],
+      interactions: ["fridge.have_snack"],
     },
   ],
   interactions: [

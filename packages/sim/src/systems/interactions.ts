@@ -1,3 +1,4 @@
+import type { ObjectId } from "../core/ids.js";
 import type { Person } from "../people/person.js";
 import type { SimState } from "../state.js";
 import { MOTIVES, clampMotive, type MotiveName } from "../people/needs.js";
@@ -5,6 +6,7 @@ import { TICKS_PER_SIM_MINUTE } from "../core/clock.js";
 import { findPath } from "../path/astar.js";
 import { personTile } from "../people/person.js";
 import { resolveSlots } from "../objects/slots.js";
+import { suppressAd } from "./autonomy.js";
 
 /**
  * S-203: queue executor + statechart interpreter, split into two systems that
@@ -21,13 +23,21 @@ function endInteraction(person: Person): void {
   person.activity = null;
 }
 
-function fail(state: SimState, person: Person, interaction: string, reason: string): void {
+function fail(
+  state: SimState,
+  person: Person,
+  object: ObjectId,
+  interaction: string,
+  reason: string,
+): void {
   state.eventLog.push({
     tick: state.clock.tick,
     type: "InteractionFailed",
     personId: person.id,
     data: { interaction, reason },
   });
+  // Failed actions suppress their ad so autonomy doesn't retry immediately (§3.7).
+  suppressAd(state, person, object, interaction);
 }
 
 export function queueExecutorSystem(state: SimState): void {
@@ -38,25 +48,25 @@ export function queueExecutorSystem(state: SimState): void {
     const action = person.queue.shift()!;
     const obj = state.objects.get(action.object);
     if (!obj) {
-      fail(state, person, action.interaction, "object-gone");
+      fail(state, person, action.object, action.interaction, "object-gone");
       continue;
     }
     const def = state.contentIndex.get(obj.defId);
     const idef = state.interactionIndex.get(action.interaction);
     if (!def || !idef) {
-      fail(state, person, action.interaction, "unknown-def");
+      fail(state, person, action.object, action.interaction, "unknown-def");
       continue;
     }
     const slots = resolveSlots(def, obj.tile, obj.rotation);
     const slotIndex = idef.slot ?? 0;
     const slot = slots[slotIndex];
     if (!slot) {
-      fail(state, person, action.interaction, "no-slot");
+      fail(state, person, action.object, action.interaction, "no-slot");
       continue;
     }
     const path = findPath(state.lot, personTile(person), slot.tile);
     if (path === null) {
-      fail(state, person, action.interaction, "unreachable");
+      fail(state, person, action.object, action.interaction, "unreachable");
       continue;
     }
     person.path = path;
@@ -82,13 +92,13 @@ export function interactionRunnerSystem(state: SimState): void {
       const obj = state.objects.get(act.object);
       const def = obj ? state.contentIndex.get(obj.defId) : undefined;
       if (!obj || !def) {
-        fail(state, person, act.interaction, "object-gone");
+        fail(state, person, act.object, act.interaction, "object-gone");
         endInteraction(person);
         continue;
       }
       const slot = resolveSlots(def, obj.tile, obj.rotation)[act.slotIndex];
       if (!slot) {
-        fail(state, person, act.interaction, "no-slot");
+        fail(state, person, act.object, act.interaction, "no-slot");
         endInteraction(person);
         continue;
       }

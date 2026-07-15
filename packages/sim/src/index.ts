@@ -6,6 +6,7 @@ import { advanceTick } from "./core/clock.js";
 import { applyCommand } from "./commands.js";
 import { buildSnapshot } from "./snapshot.js";
 import { createState, deserializeState, serializeState } from "./state.js";
+import { autonomySystem } from "./systems/autonomy.js";
 import { hashValue } from "./save/hash.js";
 import { interactionRunnerSystem, queueExecutorSystem } from "./systems/interactions.js";
 import { movementSystem } from "./systems/movement.js";
@@ -43,12 +44,13 @@ export interface SimHandle {
 /**
  * System pipeline — fixed order, one pass per tick. New systems slot in here
  * (see ARCHITECTURE.md §3.3 for the target pipeline):
- * clock → needs decay (incl. mood + failure states) → queue executor →
- * movement → interaction runner.
+ * clock → needs decay (incl. mood + failure states) → autonomy →
+ * queue executor → movement → interaction runner.
  */
 function runTick(state: SimState): void {
   advanceTick(state.clock);
   needsDecaySystem(state);
+  autonomySystem(state);
   queueExecutorSystem(state);
   movementSystem(state);
   interactionRunnerSystem(state);

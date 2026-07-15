@@ -23,6 +23,8 @@ export interface SimObjectDef {
   /** [w, h] in tiles at rotation 0. */
   footprint: readonly [number, number];
   slots: readonly SimSlotDef[];
+  /** Interaction ids this object offers — its advertisements (S-204). */
+  interactions: readonly string[];
 }
 
 import type { MotiveName } from "../people/needs.js";
