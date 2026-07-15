@@ -28,6 +28,7 @@ function toSimObject(def: ObjectDef): SimObjectDef {
       offset: [slot.offset[0], slot.offset[1]] as [number, number],
       facing: slot.facing,
     })),
+    interactions: [...def.interactions],
   };
 }
 
