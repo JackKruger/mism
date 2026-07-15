@@ -54,6 +54,7 @@ horizontal strip.
 | `ui.icon_speed10` | `.../icon_speed10.png` | 32×32 | 1 | Triple play triangles | placeholder |
 | `ui.panel_bg` | `.../panel_bg.png` | 9-slice 48×48 (16 px corners) | 1 | UI panel background: deep blue-slate rounded rectangle, soft inner bevel, 92% opacity — 9-slice safe (uniform corners) | spec |
 | `ui.toast_bg` | `.../toast_bg.png` | 9-slice 32×32 (10 px corners) | 1 | Toast/notification background: deep blue-slate rounded pill, thin light border, 94% opacity — 9-slice safe (currently a styled DOM div) | spec |
+| `ui.pie_option_bg` | `.../pie_option_bg.png` | 9-slice 48×48 (16 px corners) | 1 | Pie-menu option bubble: dark blue-slate rounded bubble, subtle rim light along the top edge, thin light border, 94% opacity — 9-slice safe (currently a styled DOM button, U-104) | spec |
 
 ## 4. Needs & mood icons (Milestone 1 — spec ahead of build)
 
@@ -109,6 +110,7 @@ Until these rows land, placed objects render as procedural isometric prisms
 ---
 
 ### Changelog
+- **2026-07-15** — U-104: added `ui.pie_option_bg` spec (§3) for the object pie-menu bubbles.
 - **2026-07-15** — C-101…C-108: §5 filled in — all eight M1 objects × state variants (19 rows, 4 rotation files each); object sprite sizes finalized (1×1 → 64×96, 2×1 → 96×112).
 - **2026-07-15** — Client M1 slice: added `ui.toast_bg` spec (§3); noted procedural prism placeholders for objects (§5).
 - **2026-07-14** — Initial manifest: M0 terrain/character/UI placeholders, M1 needs-icon specs.
