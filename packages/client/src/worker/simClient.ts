@@ -1,4 +1,4 @@
-import type { Command, CommandResult, SimSnapshot } from "@homestead/sim";
+import type { Command, CommandResult, SimContent, SimSnapshot } from "@homestead/sim";
 import { PROTOCOL_VERSION, type WorkerToMain } from "./protocol.js";
 
 /** Main-thread wrapper around the sim worker. */
@@ -33,10 +33,10 @@ export class SimClient {
     };
   }
 
-  init(seed: number): Promise<void> {
+  init(seed: number, content: SimContent): Promise<void> {
     return new Promise((resolve) => {
       this.readyResolve = resolve;
-      this.worker.postMessage({ t: "Init", protocolVersion: PROTOCOL_VERSION, seed });
+      this.worker.postMessage({ t: "Init", protocolVersion: PROTOCOL_VERSION, seed, content });
     });
   }
 

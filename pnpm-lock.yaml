@@ -23,6 +23,9 @@ importers:
 
   packages/client:
     dependencies:
+      '@homestead/content':
+        specifier: workspace:*
+        version: link:../content
       '@homestead/sim':
         specifier: workspace:*
         version: link:../sim

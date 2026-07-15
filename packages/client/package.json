@@ -11,6 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@homestead/content": "workspace:*",
     "@homestead/sim": "workspace:*",
     "pixi.js": "^8.6.6"
   },

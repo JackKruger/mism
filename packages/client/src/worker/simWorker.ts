@@ -42,7 +42,7 @@ self.onmessage = (ev: MessageEvent<MainToWorker>) => {
       if (msg.protocolVersion !== PROTOCOL_VERSION) {
         throw new Error(`Worker protocol mismatch: ${msg.protocolVersion} vs ${PROTOCOL_VERSION}`);
       }
-      sim = createSim({ seed: msg.seed });
+      sim = createSim({ seed: msg.seed, content: msg.content });
       last = performance.now();
       acc = 0;
       setInterval(loop, INTERVAL_MS);

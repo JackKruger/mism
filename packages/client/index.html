@@ -25,6 +25,36 @@
       #hint { font-size: 11px; opacity: 0.65; margin-top: 8px; max-width: 200px; }
       #fps { position: absolute; bottom: 10px; left: 12px; z-index: 10; color: #8fa3b8;
              font: 11px monospace; }
+      #needs-panel {
+        position: absolute; bottom: 30px; left: 12px; z-index: 10;
+        font-family: "Segoe UI", system-ui, sans-serif; color: #f2ede4;
+        background: rgba(24, 34, 48, 0.92); border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 10px; padding: 10px 14px; width: 212px; user-select: none;
+      }
+      #needs-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+      #needs-name { font-size: 13px; font-weight: 600; }
+      #needs-queue {
+        font-size: 11px; background: #2c3e54; border: 1px solid rgba(255,255,255,0.15);
+        border-radius: 999px; padding: 2px 8px; white-space: nowrap;
+      }
+      #needs-status { color: #e05353; font-weight: 700; font-size: 15px;
+                      letter-spacing: 1.5px; margin-top: 4px; }
+      #needs-mood { font-size: 12px; margin-top: 6px; font-variant-numeric: tabular-nums; }
+      .need-row { display: flex; align-items: center; gap: 6px; margin-top: 5px; }
+      .need-label { font-size: 11px; width: 52px; opacity: 0.85; }
+      .need-track { flex: 1; height: 8px; background: rgba(255,255,255,0.12);
+                    border-radius: 4px; overflow: hidden; }
+      .need-fill { height: 100%; border-radius: 4px; transition: width 0.25s linear; }
+      #toasts {
+        position: absolute; right: 14px; bottom: 40px; z-index: 20; display: flex;
+        flex-direction: column; gap: 6px; align-items: flex-end; pointer-events: none;
+      }
+      .toast {
+        font-family: "Segoe UI", system-ui, sans-serif; font-size: 12px; color: #f2ede4;
+        background: rgba(24, 34, 48, 0.94); border: 1px solid rgba(255,255,255,0.15);
+        border-radius: 8px; padding: 7px 12px; opacity: 1; transition: opacity 0.4s ease-out;
+      }
+      .toast-out { opacity: 0; }
     </style>
   </head>
   <body>
@@ -39,8 +69,15 @@
         <button class="speed-btn" data-speed="3" title="Fast (2)">▶▶</button>
         <button class="speed-btn" data-speed="10" title="Ultra (3)">▶▶▶</button>
       </div>
-      <div id="hint">Click a tile to send your Folk walking. Drag to pan, scroll to zoom.</div>
+      <div id="hint">Click a tile to walk, click an object to use it. Drag to pan, scroll to zoom.</div>
     </div>
+    <div id="needs-panel">
+      <div id="needs-head"><span id="needs-name"></span><span id="needs-queue" hidden></span></div>
+      <div id="needs-status" hidden></div>
+      <div id="needs-bars"></div>
+      <div id="needs-mood"></div>
+    </div>
+    <div id="toasts"></div>
     <div id="fps"></div>
     <script type="module" src="/src/main.ts"></script>
   </body>

@@ -1,16 +1,31 @@
-import { Container, Graphics } from "pixi.js";
+import { Container, Graphics, Text } from "pixi.js";
 import type { PersonView } from "@homestead/sim";
 import { worldToScreen } from "./iso.js";
 
 /**
  * Procedural placeholder character (manifest IDs char.base.*, char.shadow):
- * shadow blob + capsule body + head + facing dot. Replaced by sprite sheets
- * when final art lands (see docs/ASSET_MANIFEST.md §2).
+ * shadow blob + capsule body + head + facing dot, plus an activity bubble
+ * over the head while an interaction runs. Replaced by sprite sheets when
+ * final art lands (see docs/ASSET_MANIFEST.md §2).
  */
+
+/** Body tint per failure state (S-104): gray-blue passed out, dark gray dead. */
+const STATUS_TINT: Record<PersonView["status"], number> = {
+  normal: 0xffffff,
+  passedOut: 0x9fb3d1,
+  dead: 0x565b66,
+};
+
 export class PersonSprite {
   readonly view = new Container();
   private body = new Container();
   private facingDot = new Graphics();
+  private bubble = new Container();
+  private bubbleBg = new Graphics();
+  private bubbleText = new Text({
+    text: "",
+    style: { fontFamily: '"Segoe UI", system-ui, sans-serif', fontSize: 12, fill: 0xf2ede4 },
+  });
   private walkPhase = 0;
 
   /** Interpolated display position in world tile coords. */
@@ -21,6 +36,8 @@ export class PersonSprite {
   targetY = 0;
   facing: PersonView["facing"] = "se";
   anim: PersonView["anim"] = "idle";
+  status: PersonView["status"] = "normal";
+  private activity: string | null = null;
 
   constructor() {
     const shadow = new Graphics();
@@ -39,6 +56,12 @@ export class PersonSprite {
 
     this.body.addChild(this.facingDot);
     this.view.addChild(this.body);
+
+    this.bubbleText.anchor.set(0.5);
+    this.bubble.addChild(this.bubbleBg, this.bubbleText);
+    this.bubble.y = -60;
+    this.bubble.visible = false;
+    this.view.addChild(this.bubble);
   }
 
   syncFromSim(p: PersonView): void {
@@ -46,6 +69,25 @@ export class PersonSprite {
     this.targetY = p.y;
     this.facing = p.facing;
     this.anim = p.anim;
+
+    if (p.status !== this.status) {
+      this.status = p.status;
+      this.body.tint = STATUS_TINT[p.status];
+    }
+
+    if (p.activity !== this.activity) {
+      this.activity = p.activity;
+      this.bubble.visible = p.activity !== null;
+      if (p.activity !== null) {
+        this.bubbleText.text = p.activity;
+        const w = this.bubbleText.width;
+        const h = this.bubbleText.height;
+        this.bubbleBg.clear();
+        this.bubbleBg
+          .roundRect(-w / 2 - 6, -h / 2 - 3, w + 12, h + 6, 7)
+          .fill({ color: 0x18222f, alpha: 0.85 });
+      }
+    }
   }
 
   /** Called every render frame; dt in seconds. */

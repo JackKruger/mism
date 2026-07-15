@@ -53,6 +53,7 @@ horizontal strip.
 | `ui.icon_speed3` | `.../icon_speed3.png` | 32×32 | 1 | Double play triangles | placeholder |
 | `ui.icon_speed10` | `.../icon_speed10.png` | 32×32 | 1 | Triple play triangles | placeholder |
 | `ui.panel_bg` | `.../panel_bg.png` | 9-slice 48×48 (16 px corners) | 1 | UI panel background: deep blue-slate rounded rectangle, soft inner bevel, 92% opacity — 9-slice safe (uniform corners) | spec |
+| `ui.toast_bg` | `.../toast_bg.png` | 9-slice 32×32 (10 px corners) | 1 | Toast/notification background: deep blue-slate rounded pill, thin light border, 94% opacity — 9-slice safe (currently a styled DOM div) | spec |
 
 ## 4. Needs & mood icons (Milestone 1 — spec ahead of build)
 
@@ -101,8 +102,13 @@ corner at the image's bottom center.
 | `obj.tv_tubevision.on` | `.../tv_tubevision/on_r{0-3}.png` | 64×96 | 1 | Same CRT with screen glowing cool blue-white, subtle scanline texture, light spill onto the stand | placeholder |
 | `obj.tv_tubevision.broken` | `.../tv_tubevision/broken_r{0-3}.png` | 64×96 | 1 | Same CRT with static-snow screen, jagged crack across the glass, tiny spark burst at one corner | placeholder |
 
+Until these rows land, placed objects render as procedural isometric prisms
+(stable per-defId pastel color, darker SW face / lighter SE face, drawn in
+`packages/client/src/render/objectView.ts`) pending per-object art.
+
 ---
 
 ### Changelog
 - **2026-07-15** — C-101…C-108: §5 filled in — all eight M1 objects × state variants (19 rows, 4 rotation files each); object sprite sizes finalized (1×1 → 64×96, 2×1 → 96×112).
+- **2026-07-15** — Client M1 slice: added `ui.toast_bg` spec (§3); noted procedural prism placeholders for objects (§5).
 - **2026-07-14** — Initial manifest: M0 terrain/character/UI placeholders, M1 needs-icon specs.
