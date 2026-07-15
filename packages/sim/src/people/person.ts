@@ -1,4 +1,4 @@
-import type { PersonId } from "../core/ids.js";
+import type { ObjectId, PersonId } from "../core/ids.js";
 import type { Tile } from "../world/lot.js";
 import type { Needs } from "./needs.js";
 import type { Personality } from "./personality.js";
@@ -16,6 +16,28 @@ export type PersonStatus = "normal" | "passedOut" | "dead";
 
 /** Walk speed: 5 tiles per sim-minute (0.25 tiles per tick). */
 export const WALK_TILES_PER_TICK = 0.25;
+
+/** Max queued actions per person (matches classic queue length). */
+export const MAX_QUEUE = 8;
+
+/** An action waiting in the person's queue (S-203/S-206). */
+export interface QueuedAction {
+  object: ObjectId;
+  interaction: string;
+}
+
+/**
+ * The interaction currently being executed. 'routing' = walking to the slot;
+ * 'running' = statechart executing.
+ */
+export interface ActiveInteraction {
+  object: ObjectId;
+  interaction: string;
+  phase: "routing" | "running";
+  stateName: string;
+  stateTicks: number;
+  slotIndex: number;
+}
 
 export interface Person {
   id: PersonId;
@@ -36,6 +58,10 @@ export interface Person {
   status: PersonStatus;
   /** Tick when hunger pinned at -100; null while fed. Death after the tuned window. */
   starvationStartTick: number | null;
+  queue: QueuedAction[];
+  active: ActiveInteraction | null;
+  /** Current activity animation name from the statechart (e.g. "eat"), or null. */
+  activity: string | null;
 }
 
 export function createPerson(
@@ -61,6 +87,9 @@ export function createPerson(
     personality,
     status: "normal",
     starvationStartTick: null,
+    queue: [],
+    active: null,
+    activity: null,
   };
 }
 

@@ -61,6 +61,9 @@ function applyFailureStates(state: SimState, person: Person): void {
     person.status = "passedOut";
     person.path = [];
     person.anim = "idle";
+    person.queue = [];
+    person.active = null;
+    person.activity = null;
     state.eventLog.push({ tick, type: "PassedOut", personId: person.id });
   } else if (person.status === "passedOut" && person.needs.energy >= TUNING.failures.passedOutWakeEnergy) {
     person.status = "normal";
@@ -75,6 +78,9 @@ function applyFailureStates(state: SimState, person: Person): void {
       person.status = "dead";
       person.path = [];
       person.anim = "idle";
+      person.queue = [];
+      person.active = null;
+      person.activity = null;
       state.eventLog.push({
         tick,
         type: "Death",

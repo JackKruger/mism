@@ -8,7 +8,8 @@ import { asPersonId } from "./core/ids.js";
 import { canPlace, placeObject, removeObject } from "./objects/placement.js";
 import { findPath } from "./path/astar.js";
 import { isWalkable } from "./world/lot.js";
-import { createPerson, personTile } from "./people/person.js";
+import { MAX_QUEUE, createPerson, personTile } from "./people/person.js";
+import { clampMotive, type MotiveName } from "./people/needs.js";
 import { defaultPersonality, isValidPersonality } from "./people/personality.js";
 
 export type Command =
@@ -16,7 +17,9 @@ export type Command =
   | { t: "SetSpeed"; speed: GameSpeed }
   | { t: "AddPerson"; name: string; x: number; y: number; personality?: Personality }
   | { t: "PlaceObject"; defId: string; tile: Tile; rotation: Rotation }
-  | { t: "RemoveObject"; object: ObjectId };
+  | { t: "RemoveObject"; object: ObjectId }
+  | { t: "QueueInteraction"; person: PersonId; object: ObjectId; interaction: string }
+  | { t: "DebugSetNeed"; person: PersonId; motive: MotiveName; value: number };
 
 export type CommandError =
   | "unknown-person"
@@ -27,7 +30,9 @@ export type CommandError =
   | "person-incapacitated"
   | "unknown-def"
   | "unknown-object"
-  | "invalid-placement";
+  | "invalid-placement"
+  | "unknown-interaction"
+  | "queue-full";
 
 export type CommandResult =
   | { ok: true; personId?: PersonId; objectId?: ObjectId }
@@ -59,8 +64,33 @@ export function applyCommand(state: SimState, cmd: Command): CommandResult {
       if (!isWalkable(state.lot, cmd.x, cmd.y)) return { ok: false, error: "tile-blocked" };
       const path = findPath(state.lot, personTile(person), { x: cmd.x, y: cmd.y });
       if (path === null) return { ok: false, error: "unreachable" };
+      // Player override: a direct walk order cancels the queue and any
+      // running interaction (player commands outrank everything, §2.3).
+      person.queue = [];
+      person.active = null;
+      person.activity = null;
       person.path = path;
       person.pathNavVersion = state.lot.navVersion;
+      return { ok: true };
+    }
+
+    case "QueueInteraction": {
+      const person = state.people.get(cmd.person);
+      if (!person) return { ok: false, error: "unknown-person" };
+      if (person.status !== "normal") return { ok: false, error: "person-incapacitated" };
+      if (!state.objects.get(cmd.object)) return { ok: false, error: "unknown-object" };
+      if (!state.interactionIndex.get(cmd.interaction)) {
+        return { ok: false, error: "unknown-interaction" };
+      }
+      if (person.queue.length >= MAX_QUEUE) return { ok: false, error: "queue-full" };
+      person.queue.push({ object: cmd.object, interaction: cmd.interaction });
+      return { ok: true };
+    }
+
+    case "DebugSetNeed": {
+      const person = state.people.get(cmd.person);
+      if (!person) return { ok: false, error: "unknown-person" };
+      person.needs[cmd.motive] = clampMotive(cmd.value);
       return { ok: true };
     }
 

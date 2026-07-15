@@ -7,6 +7,7 @@ import { applyCommand } from "./commands.js";
 import { buildSnapshot } from "./snapshot.js";
 import { createState, deserializeState, serializeState } from "./state.js";
 import { hashValue } from "./save/hash.js";
+import { interactionRunnerSystem, queueExecutorSystem } from "./systems/interactions.js";
 import { movementSystem } from "./systems/movement.js";
 import { needsDecaySystem } from "./systems/needsDecay.js";
 
@@ -19,7 +20,8 @@ export type { MotiveName, Needs } from "./people/needs.js";
 export type { Personality, TraitName } from "./people/personality.js";
 export type { PersonStatus } from "./people/person.js";
 export type { SimEvent, SimEventType } from "./core/events.js";
-export type { SimContent, SimObjectDef, SimSlotDef } from "./objects/content.js";
+export type { SimContent, SimInteractionDef, SimObjectDef, SimSlotDef } from "./objects/content.js";
+export type { ActiveInteraction, QueuedAction } from "./people/person.js";
 export type { ObjInstance, Rotation } from "./objects/objInstance.js";
 export type { ResolvedSlot } from "./objects/slots.js";
 export { canPlace, footprintTiles, rotateOffset } from "./objects/placement.js";
@@ -41,12 +43,15 @@ export interface SimHandle {
 /**
  * System pipeline — fixed order, one pass per tick. New systems slot in here
  * (see ARCHITECTURE.md §3.3 for the target pipeline):
- * clock → needs decay (incl. mood + failure states) → movement.
+ * clock → needs decay (incl. mood + failure states) → queue executor →
+ * movement → interaction runner.
  */
 function runTick(state: SimState): void {
   advanceTick(state.clock);
   needsDecaySystem(state);
+  queueExecutorSystem(state);
   movementSystem(state);
+  interactionRunnerSystem(state);
 }
 
 function makeHandle(state: SimState): SimHandle {

@@ -19,6 +19,8 @@ export interface PersonView {
   needs: Record<MotiveName, number>;
   mood: number;
   status: PersonStatus;
+  /** Activity animation from the running interaction (e.g. "eat"), or null. */
+  activity: string | null;
 }
 
 export interface ObjectView {
@@ -61,10 +63,11 @@ export function buildSnapshot(state: SimState, sinceTick = -1): SimSnapshot {
         y: p.py,
         facing: p.facing,
         anim: p.anim,
-        queueLength: p.path.length > 0 ? 1 : 0,
+        queueLength: p.queue.length + (p.active !== null ? 1 : 0),
         needs,
         mood: Math.round(p.mood),
         status: p.status,
+        activity: p.activity,
       };
     }),
     objects: [...state.objects.values()].map((o) => ({

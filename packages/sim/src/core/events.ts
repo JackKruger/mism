@@ -5,7 +5,15 @@ import type { PersonId } from "./ids.js";
  * kept in a bounded ring buffer on the state for UI toasts and debugging.
  */
 
-export type SimEventType = "BladderAccident" | "PassedOut" | "WokeUp" | "Death";
+export type SimEventType =
+  | "BladderAccident"
+  | "PassedOut"
+  | "WokeUp"
+  | "Death"
+  | "InteractionStarted"
+  | "InteractionCompleted"
+  | "InteractionFailed"
+  | "InteractionInterrupted";
 
 export interface SimEvent {
   tick: number;

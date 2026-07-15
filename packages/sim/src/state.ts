@@ -5,7 +5,7 @@ import type { ObjInstance } from "./objects/objInstance.js";
 import type { Person } from "./people/person.js";
 import type { RngState } from "./core/rng.js";
 import type { SimEvent } from "./core/events.js";
-import type { SimContent, SimObjectDef } from "./objects/content.js";
+import type { SimContent, SimInteractionDef, SimObjectDef } from "./objects/content.js";
 import { Rng } from "./core/rng.js";
 import { createClock } from "./core/clock.js";
 import { createLot } from "./world/lot.js";
@@ -27,6 +27,8 @@ export interface SimState {
    * Lookup only; never iterate it inside sim code (determinism rule).
    */
   contentIndex: ReadonlyMap<string, SimObjectDef>;
+  /** Interaction statecharts by id — provided at createSim, not serialized. Lookup only. */
+  interactionIndex: ReadonlyMap<string, SimInteractionDef>;
   nextEntityId: number;
 }
 
@@ -44,6 +46,8 @@ export interface SerializedState {
 export function createState(seed: number, content?: SimContent): SimState {
   const contentIndex = new Map<string, SimObjectDef>();
   for (const def of content?.objects ?? []) contentIndex.set(def.id, def);
+  const interactionIndex = new Map<string, SimInteractionDef>();
+  for (const idef of content?.interactions ?? []) interactionIndex.set(idef.id, idef);
   return {
     version: SAVE_VERSION,
     rng: Rng.fromSeed(seed),
@@ -53,6 +57,7 @@ export function createState(seed: number, content?: SimContent): SimState {
     objects: new Store<ObjectId, ObjInstance>(),
     eventLog: new EventLog(),
     contentIndex,
+    interactionIndex,
     nextEntityId: 1,
   };
 }
@@ -62,6 +67,8 @@ const clonePerson = (p: Person): Person => ({
   path: p.path.map((t) => ({ ...t })),
   needs: { ...p.needs },
   personality: { ...p.personality },
+  queue: p.queue.map((q) => ({ ...q })),
+  active: p.active === null ? null : { ...p.active },
 });
 
 export function serializeState(state: SimState): SerializedState {

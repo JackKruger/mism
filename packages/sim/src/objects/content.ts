@@ -25,7 +25,34 @@ export interface SimObjectDef {
   slots: readonly SimSlotDef[];
 }
 
+import type { MotiveName } from "../people/needs.js";
+
+/** One state of an interaction statechart (mirror of schemas/interaction.ts). */
+export interface SimInteractionStateDef {
+  /** Verb, e.g. "anim:eat". v1 supports only anim:*; unknown verbs are ignored. */
+  do?: string;
+  durationMin?: number;
+  /** Motive deltas applied per sim-minute while in this state. */
+  perMin?: Partial<Record<MotiveName, number>>;
+  /** Advance when the motive reaches the threshold. */
+  untilMotive?: { motive: MotiveName; gte: number };
+  /** Next state name or "$exit". Absent = "$exit". */
+  next?: string;
+}
+
+export interface SimInteractionDef {
+  id: string;
+  /** Advertised motive gains (used by the S-204 ad system). */
+  ad: Partial<Record<MotiveName, number>>;
+  /** Index into the object's slots to route to. Default 0. */
+  slot?: number;
+  states: Record<string, SimInteractionStateDef>;
+  /** Abort when any listed motive falls below its threshold. */
+  interruptible?: { below?: Partial<Record<MotiveName, number>> };
+}
+
 /** The subset of the content bundle the sim consumes. */
 export interface SimContent {
   objects: readonly SimObjectDef[];
+  interactions?: readonly SimInteractionDef[];
 }
