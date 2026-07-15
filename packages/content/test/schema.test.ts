@@ -11,15 +11,15 @@ import fridgeHaveSnackJson from "../data/interactions/fridge_have_snack.json";
 const clone = <T>(v: T): T => JSON.parse(JSON.stringify(v)) as T;
 
 describe("loadContent", () => {
-  it("validates the shipped fixtures into a typed bundle", () => {
+  it("validates the shipped M1 catalog into a typed bundle", () => {
     const bundle = loadContent();
-    expect(bundle.objects).toHaveLength(1);
-    expect(bundle.interactions).toHaveLength(1);
-    const fridge = bundle.objects[0]!;
-    expect(fridge.id).toBe("fridge_econocool");
+    expect(bundle.objects).toHaveLength(8);
+    expect(bundle.interactions).toHaveLength(9);
+    const fridge = bundle.objects.find((o) => o.id === "fridge_econocool")!;
     expect(fridge.footprint).toEqual([1, 1]);
     expect(fridge.slots[0]!.facing).toBe("object");
-    expect(bundle.interactions[0]!.states["eat"]!.perMin).toEqual({ hunger: 8 });
+    const snack = bundle.interactions.find((i) => i.id === "fridge.have_snack")!;
+    expect(snack.states["eat"]!.perMin).toEqual({ hunger: 8 });
   });
 });
 

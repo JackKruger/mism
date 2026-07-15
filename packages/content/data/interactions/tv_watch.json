@@ -1,0 +1,16 @@
+{
+  "id": "tv.watch",
+  "name": "Watch TV",
+  "ad": { "fun": 45 },
+  "requires": ["object.notBroken"],
+  "slot": 0,
+  "states": {
+    "start": {
+      "do": "anim:watch_tv",
+      "perMin": { "fun": 4 },
+      "untilMotive": { "motive": "fun", "gte": 90 },
+      "next": "$exit"
+    }
+  },
+  "interruptible": { "below": { "hunger": -60, "bladder": -70, "energy": -80 } }
+}

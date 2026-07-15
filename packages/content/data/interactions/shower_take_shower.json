@@ -1,0 +1,16 @@
+{
+  "id": "shower.take_shower",
+  "name": "Take a Shower",
+  "ad": { "hygiene": 50 },
+  "requires": ["object.notBroken"],
+  "slot": 0,
+  "states": {
+    "start": {
+      "do": "anim:shower",
+      "perMin": { "hygiene": 12 },
+      "untilMotive": { "motive": "hygiene", "gte": 100 },
+      "next": "$exit"
+    }
+  },
+  "interruptible": { "below": { "bladder": -70 } }
+}

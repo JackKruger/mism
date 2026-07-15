@@ -1,0 +1,16 @@
+{
+  "id": "sofa.sit",
+  "name": "Sit Down",
+  "ad": { "comfort": 45 },
+  "requires": ["object.notBroken"],
+  "slot": 0,
+  "states": {
+    "start": {
+      "do": "anim:sit",
+      "perMin": { "comfort": 5 },
+      "untilMotive": { "motive": "comfort", "gte": 90 },
+      "next": "$exit"
+    }
+  },
+  "interruptible": { "below": { "hunger": -70, "bladder": -70 } }
+}

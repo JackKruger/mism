@@ -10,6 +10,6 @@
     "default": "objects/fridge_econocool/default",
     "broken": "objects/fridge_econocool/broken"
   },
-  "interactions": ["fridge.have_snack"],
+  "interactions": ["fridge.have_snack", "fridge.have_meal"],
   "slots": [{ "type": "stand", "offset": [0, 1], "facing": "object" }]
 }

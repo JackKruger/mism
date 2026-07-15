@@ -1,0 +1,16 @@
+{
+  "id": "toilet_comfyflush",
+  "name": "ComfyFlush Toilet",
+  "price": 300,
+  "category": "bathroom",
+  "footprint": [1, 1],
+  "flammability": 0,
+  "motiveRatings": { "bladder": 8 },
+  "states": {
+    "default": "objects/toilet_comfyflush/default",
+    "dirty": "objects/toilet_comfyflush/dirty",
+    "broken": "objects/toilet_comfyflush/broken"
+  },
+  "interactions": ["toilet.use"],
+  "slots": [{ "type": "stand", "offset": [0, 1], "facing": "object" }]
+}

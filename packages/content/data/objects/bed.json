@@ -1,0 +1,15 @@
+{
+  "id": "bed_dreamtime",
+  "name": "Dreamtime Double Bed",
+  "price": 900,
+  "category": "bedroom",
+  "footprint": [2, 1],
+  "flammability": 4,
+  "motiveRatings": { "energy": 7, "comfort": 5 },
+  "states": {
+    "default": "objects/bed_dreamtime/default",
+    "dirty": "objects/bed_dreamtime/dirty"
+  },
+  "interactions": ["bed.sleep"],
+  "slots": [{ "type": "stand", "offset": [0, 1], "facing": "object" }]
+}

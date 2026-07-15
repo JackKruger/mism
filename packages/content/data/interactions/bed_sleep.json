@@ -1,0 +1,17 @@
+{
+  "id": "bed.sleep",
+  "name": "Sleep",
+  "ad": { "energy": 60, "comfort": 30 },
+  "requires": ["object.notBroken"],
+  "slot": 0,
+  "states": {
+    "start": { "do": "anim:get_in_bed", "durationMin": 2, "next": "sleep" },
+    "sleep": {
+      "do": "anim:sleep",
+      "perMin": { "energy": 0.42, "comfort": 0.5 },
+      "untilMotive": { "motive": "energy", "gte": 95 },
+      "next": "$exit"
+    }
+  },
+  "interruptible": { "below": { "bladder": -90, "hunger": -85 } }
+}
