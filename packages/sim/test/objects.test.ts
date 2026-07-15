@@ -8,24 +8,27 @@ import { findPath } from "../src/path/astar.js";
 import { isWalkable } from "../src/world/lot.js";
 import { resolveSlots } from "../src/objects/slots.js";
 
-const counter1x1: SimObjectDef = { id: "counter_1x1", footprint: [1, 1], slots: [] };
+const counter1x1: SimObjectDef = { id: "counter_1x1", footprint: [1, 1], slots: [], interactions: [] };
 
 const sofa2x1: SimObjectDef = {
   id: "sofa_2x1",
   footprint: [2, 1],
   slots: [{ type: "sit", offset: [0, 0], facing: "object" }],
+  interactions: [],
 };
 
 const table2x2: SimObjectDef = {
   id: "table_2x2",
   footprint: [2, 2],
   slots: [{ type: "stand", offset: [0, 1], facing: "object" }],
+  interactions: [],
 };
 
 const fridge1x1: SimObjectDef = {
   id: "fridge_econocool",
   footprint: [1, 1],
   slots: [{ type: "stand", offset: [0, 1], facing: "object" }],
+  interactions: [],
 };
 
 const CONTENT: SimContent = { objects: [counter1x1, sofa2x1, table2x2, fridge1x1] };

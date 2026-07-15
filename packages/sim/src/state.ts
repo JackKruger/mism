@@ -69,6 +69,7 @@ const clonePerson = (p: Person): Person => ({
   personality: { ...p.personality },
   queue: p.queue.map((q) => ({ ...q })),
   active: p.active === null ? null : { ...p.active },
+  suppressed: p.suppressed.map((s) => ({ ...s })),
 });
 
 export function serializeState(state: SimState): SerializedState {

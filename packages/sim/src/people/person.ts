@@ -27,6 +27,16 @@ export interface QueuedAction {
 }
 
 /**
+ * An ad temporarily ignored by autonomy after the action failed (§3.7) —
+ * a serializable array, pruned when the person next re-plans (S-205).
+ */
+export interface SuppressedAd {
+  object: ObjectId;
+  interaction: string;
+  untilTick: number;
+}
+
+/**
  * The interaction currently being executed. 'routing' = walking to the slot;
  * 'running' = statechart executing.
  */
@@ -62,6 +72,10 @@ export interface Person {
   active: ActiveInteraction | null;
   /** Current activity animation name from the statechart (e.g. "eat"), or null. */
   activity: string | null;
+  /** Tick of the last autonomy planning pass (S-205 re-plan throttle). */
+  lastPlanTick: number;
+  /** Ads to skip until their tick passes (failed actions, §3.7). */
+  suppressed: SuppressedAd[];
 }
 
 export function createPerson(
@@ -90,6 +104,8 @@ export function createPerson(
     queue: [],
     active: null,
     activity: null,
+    lastPlanTick: 0,
+    suppressed: [],
   };
 }
 
