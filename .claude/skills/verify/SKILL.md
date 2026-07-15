@@ -40,6 +40,13 @@ await page.goto("http://localhost:4173/");
 
 ## Gotchas
 
+- **Stale preview server (bit us once):** `pkill -f vite` BEFORE starting a
+  preview. A leftover server from an earlier round keeps the port; with
+  `--strictPort` your new server dies silently (especially with output
+  redirected) and you verify a cached OLD build. Always confirm freshness:
+  `curl -s localhost:4173/ | grep -o 'index-[^"]*\.js'` must match the chunk
+  in `packages/client/dist/assets/`.
+
 - Headless software GL reports ~18 fps and "GPU stall due to ReadPixels"
   warnings — environment noise, not a regression.
 - One 404 in the console at boot is expected: the texture loader probes for
