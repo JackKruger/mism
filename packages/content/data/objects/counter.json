@@ -1,0 +1,15 @@
+{
+  "id": "counter_plainview",
+  "name": "Plainview Kitchen Counter",
+  "price": 140,
+  "category": "kitchen",
+  "footprint": [1, 1],
+  "flammability": 2,
+  "motiveRatings": {},
+  "states": {
+    "default": "objects/counter_plainview/default",
+    "dirty": "objects/counter_plainview/dirty"
+  },
+  "interactions": [],
+  "slots": [{ "type": "stand", "offset": [0, 1], "facing": "object" }]
+}

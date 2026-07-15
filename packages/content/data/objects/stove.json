@@ -1,0 +1,16 @@
+{
+  "id": "stove_sizzleworks",
+  "name": "SizzleWorks Gas Range",
+  "price": 400,
+  "category": "kitchen",
+  "footprint": [1, 1],
+  "flammability": 8,
+  "motiveRatings": { "hunger": 8 },
+  "states": {
+    "default": "objects/stove_sizzleworks/default",
+    "dirty": "objects/stove_sizzleworks/dirty",
+    "broken": "objects/stove_sizzleworks/broken"
+  },
+  "interactions": ["stove.cook_meal"],
+  "slots": [{ "type": "stand", "offset": [0, 1], "facing": "object" }]
+}

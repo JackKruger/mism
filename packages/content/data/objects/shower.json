@@ -1,0 +1,16 @@
+{
+  "id": "shower_drenchmaster",
+  "name": "DrenchMaster 3000",
+  "price": 650,
+  "category": "bathroom",
+  "footprint": [1, 1],
+  "flammability": 0,
+  "motiveRatings": { "hygiene": 6 },
+  "states": {
+    "default": "objects/shower_drenchmaster/default",
+    "dirty": "objects/shower_drenchmaster/dirty",
+    "broken": "objects/shower_drenchmaster/broken"
+  },
+  "interactions": ["shower.take_shower"],
+  "slots": [{ "type": "stand", "offset": [0, 1], "facing": "object" }]
+}

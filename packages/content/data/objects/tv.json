@@ -1,0 +1,16 @@
+{
+  "id": "tv_tubevision",
+  "name": "TubeVision Television",
+  "price": 500,
+  "category": "living",
+  "footprint": [1, 1],
+  "flammability": 6,
+  "motiveRatings": { "fun": 5 },
+  "states": {
+    "default": "objects/tv_tubevision/default",
+    "on": "objects/tv_tubevision/on",
+    "broken": "objects/tv_tubevision/broken"
+  },
+  "interactions": ["tv.watch"],
+  "slots": [{ "type": "stand", "offset": [0, 1], "facing": "object" }]
+}

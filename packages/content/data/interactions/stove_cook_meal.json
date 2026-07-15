@@ -1,0 +1,18 @@
+{
+  "id": "stove.cook_meal",
+  "name": "Cook a Meal",
+  "ad": { "hunger": 65 },
+  "cost": 12,
+  "requires": ["object.notBroken"],
+  "slot": 0,
+  "states": {
+    "start": { "do": "anim:cook", "durationMin": 15, "next": "eat", "onFail": "$exit" },
+    "eat": {
+      "do": "anim:eat",
+      "perMin": { "hunger": 9 },
+      "untilMotive": { "motive": "hunger", "gte": 100 },
+      "next": "$exit"
+    }
+  },
+  "interruptible": { "below": { "bladder": -80 } }
+}

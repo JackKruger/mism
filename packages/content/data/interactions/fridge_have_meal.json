@@ -1,0 +1,18 @@
+{
+  "id": "fridge.have_meal",
+  "name": "Have Meal",
+  "ad": { "hunger": 55 },
+  "cost": 10,
+  "requires": ["object.notBroken"],
+  "slot": 0,
+  "states": {
+    "start": { "do": "anim:open_fridge", "durationMin": 2, "next": "eat" },
+    "eat": {
+      "do": "anim:eat",
+      "perMin": { "hunger": 6, "comfort": -0.5 },
+      "untilMotive": { "motive": "hunger", "gte": 100 },
+      "next": "$exit"
+    }
+  },
+  "interruptible": { "below": { "bladder": -85 } }
+}

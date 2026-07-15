@@ -1,0 +1,17 @@
+{
+  "id": "sofa_sagfree",
+  "name": "SagFree Loveseat",
+  "price": 450,
+  "category": "living",
+  "footprint": [2, 1],
+  "flammability": 5,
+  "motiveRatings": { "comfort": 6, "energy": 3 },
+  "states": {
+    "default": "objects/sofa_sagfree/default"
+  },
+  "interactions": ["sofa.sit", "sofa.nap"],
+  "slots": [
+    { "type": "sit", "offset": [0, 0], "facing": "away" },
+    { "type": "sit", "offset": [1, 0], "facing": "away" }
+  ]
+}

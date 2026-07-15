@@ -70,20 +70,39 @@ off-white on transparent, 3 px rounded stroke feel, readable at 20×20.
 | `ui.need_bladder` | `.../bladder.png` | Water drop with motion ticks | spec |
 | `ui.need_room` | `.../room.png` | House outline with sparkle inside | spec |
 
-## 5. Objects (Milestone 1 — spec, added as C-10x tasks start)
+## 5. Objects (Milestone 1 — C-101…C-108)
 
-Object sprites: one PNG per rotation per state. Sizes depend on footprint —
-a 1×1-tile object renders inside 64×80 (base diamond + up to 48 px height);
-2×1 objects inside 96×96. Exact per-object sizes will be added when each
-object task begins; the eight M1 objects (fridge, counter, stove, toilet,
-shower, bed, sofa, TV) will each get rows here with per-rotation
-descriptions.
+Object sprites: **one PNG per rotation per state** — each row below stands
+for 4 files, suffixed `_r0`…`_r3` (r0 = the object's rotation-0 facing,
+front toward screen lower-right; r1–r3 rotate clockwise). Sizes by
+footprint: 1×1-tile objects **64×96** (base diamond + up to 64 px height),
+2×1 objects **96×112**. Anchor: footprint-origin tile's bottom diamond
+corner at the image's bottom center.
 
-| ID | Path | Size (px) | Frames | Description | Status |
+| ID | Path (×4 rotations) | Size (px) | Frames | Description | Status |
 |---|---|---|---|---|---|
-| _(pending C-101…C-110)_ | | | | | |
+| `obj.fridge_econocool.default` | `packages/client/public/assets/objects/fridge_econocool/default_r{0-3}.png` | 64×96 | 1 | Compact 2000s-era white refrigerator, rounded top, chrome handle, freezer door above fridge door, slight top-left highlight | placeholder |
+| `obj.fridge_econocool.broken` | `.../fridge_econocool/broken_r{0-3}.png` | 64×96 | 1 | Same fridge with door ajar, small puddle at base, sad flickering interior light, sparks decal near hinge | placeholder |
+| `obj.stove_sizzleworks.default` | `packages/client/public/assets/objects/stove_sizzleworks/default_r{0-3}.png` | 64×96 | 1 | Freestanding white-enamel gas range, four black burner grates, oven door with dark window, red control knobs along the front rail | placeholder |
+| `obj.stove_sizzleworks.dirty` | `.../stove_sizzleworks/dirty_r{0-3}.png` | 64×96 | 1 | Same range with grease splatter around the burners and a crusted pot stain on the cooktop | placeholder |
+| `obj.stove_sizzleworks.broken` | `.../stove_sizzleworks/broken_r{0-3}.png` | 64×96 | 1 | Same range with scorched black burner ring, thin smoke wisp, oven door hanging crooked | placeholder |
+| `obj.counter_plainview.default` | `packages/client/public/assets/objects/counter_plainview/default_r{0-3}.png` | 64×96 | 1 | Plain kitchen counter module, warm oak cabinet base with one door and drawer, pale speckled laminate top with soft top-left sheen | placeholder |
+| `obj.counter_plainview.dirty` | `.../counter_plainview/dirty_r{0-3}.png` | 64×96 | 1 | Same counter with crumbs, a smear stain, and a stack of unwashed plates on the worktop | placeholder |
+| `obj.toilet_comfyflush.default` | `packages/client/public/assets/objects/toilet_comfyflush/default_r{0-3}.png` | 64×96 | 1 | Classic white porcelain toilet with tank, lid closed, chrome flush handle, gentle blue-white porcelain shading | placeholder |
+| `obj.toilet_comfyflush.dirty` | `.../toilet_comfyflush/dirty_r{0-3}.png` | 64×96 | 1 | Same toilet with seat up, yellow-green grime ring, tiny stink squiggles rising | placeholder |
+| `obj.toilet_comfyflush.broken` | `.../toilet_comfyflush/broken_r{0-3}.png` | 64×96 | 1 | Same toilet clogged and overflowing: water pooling at the base, tank lid askew | placeholder |
+| `obj.shower_drenchmaster.default` | `packages/client/public/assets/objects/shower_drenchmaster/default_r{0-3}.png` | 64×96 | 1 | Corner shower stall, brushed-steel frame, frosted glass panels (silhouette-friendly), chrome shower head, shallow white tray base | placeholder |
+| `obj.shower_drenchmaster.dirty` | `.../shower_drenchmaster/dirty_r{0-3}.png` | 64×96 | 1 | Same stall with soap-scum streaks on the glass and mildew spots along the tray edge | placeholder |
+| `obj.shower_drenchmaster.broken` | `.../shower_drenchmaster/broken_r{0-3}.png` | 64×96 | 1 | Same stall with drooping shower head dripping, cracked glass star, small leak puddle outside the tray | placeholder |
+| `obj.bed_dreamtime.default` | `packages/client/public/assets/objects/bed_dreamtime/default_r{0-3}.png` | 96×112 | 1 | Cozy double bed, honey-wood headboard at the far end, puffy sky-blue duvet neatly made, two white pillows, soft top-left light | placeholder |
+| `obj.bed_dreamtime.dirty` | `.../bed_dreamtime/dirty_r{0-3}.png` | 96×112 | 1 | Same bed unmade: duvet thrown back in a rumpled diagonal, dented pillows, corner of sheet trailing to the floor | placeholder |
+| `obj.sofa_sagfree.default` | `packages/client/public/assets/objects/sofa_sagfree/default_r{0-3}.png` | 96×112 | 1 | Two-seat loveseat, plump terracotta upholstery, rounded armrests, short wooden peg legs, seat cushions with a soft center crease | placeholder |
+| `obj.tv_tubevision.default` | `packages/client/public/assets/objects/tv_tubevision/default_r{0-3}.png` | 64×96 | 1 | Chunky late-90s CRT television on a low black stand, dark curved screen (off, faint window reflection), silver brand-less front panel | placeholder |
+| `obj.tv_tubevision.on` | `.../tv_tubevision/on_r{0-3}.png` | 64×96 | 1 | Same CRT with screen glowing cool blue-white, subtle scanline texture, light spill onto the stand | placeholder |
+| `obj.tv_tubevision.broken` | `.../tv_tubevision/broken_r{0-3}.png` | 64×96 | 1 | Same CRT with static-snow screen, jagged crack across the glass, tiny spark burst at one corner | placeholder |
 
 ---
 
 ### Changelog
+- **2026-07-15** — C-101…C-108: §5 filled in — all eight M1 objects × state variants (19 rows, 4 rotation files each); object sprite sizes finalized (1×1 → 64×96, 2×1 → 96×112).
 - **2026-07-14** — Initial manifest: M0 terrain/character/UI placeholders, M1 needs-icon specs.

@@ -1,0 +1,15 @@
+{
+  "id": "toilet.use",
+  "name": "Use Toilet",
+  "ad": { "bladder": 60 },
+  "requires": ["object.notBroken"],
+  "slot": 0,
+  "states": {
+    "start": {
+      "do": "anim:use_toilet",
+      "perMin": { "bladder": 40 },
+      "untilMotive": { "motive": "bladder", "gte": 100 },
+      "next": "$exit"
+    }
+  }
+}

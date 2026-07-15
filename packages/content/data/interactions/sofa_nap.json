@@ -1,0 +1,17 @@
+{
+  "id": "sofa.nap",
+  "name": "Nap",
+  "ad": { "energy": 35 },
+  "requires": ["object.notBroken"],
+  "slot": 0,
+  "states": {
+    "start": { "do": "anim:lie_down", "durationMin": 1, "next": "doze" },
+    "doze": {
+      "do": "anim:nap",
+      "perMin": { "energy": 0.3, "comfort": 1 },
+      "untilMotive": { "motive": "energy", "gte": 60 },
+      "next": "$exit"
+    }
+  },
+  "interruptible": { "below": { "hunger": -70, "bladder": -80 } }
+}
