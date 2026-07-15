@@ -4,6 +4,9 @@ import { WALK_TILES_PER_TICK, facingFromDelta } from "../people/person.js";
 /** Advances every person along their path by one tick. */
 export function movementSystem(state: SimState): void {
   for (const person of state.people.values()) {
+    // passedOut/dead folk don't move (S-104); their path was already cleared.
+    if (person.status !== "normal") continue;
+
     let budget = WALK_TILES_PER_TICK;
 
     while (budget > 0 && person.path.length > 0) {

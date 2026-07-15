@@ -64,6 +64,53 @@ describe("SimHandle", () => {
     expect(resumed.hashState()).toBe(uninterrupted.hashState());
   });
 
+  it("is deterministic with needs/personality: 2 people, 50k ticks twice → same hash", () => {
+    const run = () => {
+      const sim = createSim({ seed: 424242 });
+      sim.apply({
+        t: "AddPerson", name: "Neat Nel", x: 3, y: 3,
+        personality: { neat: 10, outgoing: 2, active: 8, playful: 1, nice: 9 },
+      });
+      sim.apply({
+        t: "AddPerson", name: "Sloppy Sam", x: 50, y: 40,
+        personality: { neat: 0, outgoing: 9, active: 2, playful: 10, nice: 3 },
+      });
+      sim.tick(50_000);
+      return sim.hashState();
+    };
+    expect(run()).toBe(run());
+  });
+
+  it("serialize → load → resume matches with needs, personality, status and events", () => {
+    const mkSim = () => {
+      const sim = createSim({ seed: 777 });
+      const res = sim.apply({
+        t: "AddPerson", name: "Neat Nel", x: 10, y: 10,
+        personality: { neat: 10, outgoing: 2, active: 8, playful: 1, nice: 9 },
+      });
+      sim.apply({
+        t: "AddPerson", name: "Sloppy Sam", x: 40, y: 40,
+        personality: { neat: 0, outgoing: 9, active: 2, playful: 10, nice: 3 },
+      });
+      if (!res.ok || res.personId === undefined) throw new Error("AddPerson failed");
+      sim.apply({ t: "WalkTo", person: res.personId, x: 55, y: 20 });
+      return sim;
+    };
+
+    // 40k ticks covers bladder accidents, an energy collapse and a wake-up.
+    const uninterrupted = mkSim();
+    uninterrupted.tick(40_000);
+
+    const first = mkSim();
+    first.tick(20_000);
+    // Round-trip through JSON to prove the save is plain-data clean.
+    const resumed = loadSim(JSON.parse(JSON.stringify(first.serialize())));
+    resumed.tick(20_000);
+
+    expect(resumed.hashState()).toBe(uninterrupted.hashState());
+    expect(resumed.snapshot().events).toEqual(uninterrupted.snapshot().events);
+  });
+
   it("holds the tick budget: 10k ticks with 4 walkers well under 2ms mean", () => {
     const sim = createSim({ seed: 7 });
     const ids = [addPerson(sim, 1, 1), addPerson(sim, 60, 1), addPerson(sim, 1, 60), addPerson(sim, 60, 60)];
