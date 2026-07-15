@@ -1,0 +1,15 @@
+{
+  "id": "fridge_econocool",
+  "name": "EconoCool Refrigerator",
+  "price": 600,
+  "category": "kitchen",
+  "footprint": [1, 1],
+  "flammability": 1,
+  "motiveRatings": { "hunger": 6 },
+  "states": {
+    "default": "objects/fridge_econocool/default",
+    "broken": "objects/fridge_econocool/broken"
+  },
+  "interactions": ["fridge.have_snack"],
+  "slots": [{ "type": "stand", "offset": [0, 1], "facing": "object" }]
+}

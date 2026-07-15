@@ -1,5 +1,6 @@
 import type { Command, CommandResult } from "./commands.js";
 import type { SerializedState, SimState } from "./state.js";
+import type { SimContent } from "./objects/content.js";
 import type { SimSnapshot } from "./snapshot.js";
 import { advanceTick } from "./core/clock.js";
 import { applyCommand } from "./commands.js";
@@ -9,15 +10,20 @@ import { hashValue } from "./save/hash.js";
 import { movementSystem } from "./systems/movement.js";
 import { needsDecaySystem } from "./systems/needsDecay.js";
 
-export type { Command, CommandResult } from "./commands.js";
-export type { SimSnapshot, PersonView } from "./snapshot.js";
+export type { Command, CommandError, CommandResult } from "./commands.js";
+export type { SimSnapshot, PersonView, ObjectView } from "./snapshot.js";
 export type { GameSpeed } from "./core/clock.js";
 export type { SerializedState } from "./state.js";
-export type { PersonId } from "./core/ids.js";
+export type { PersonId, ObjectId } from "./core/ids.js";
 export type { MotiveName, Needs } from "./people/needs.js";
 export type { Personality, TraitName } from "./people/personality.js";
 export type { PersonStatus } from "./people/person.js";
 export type { SimEvent, SimEventType } from "./core/events.js";
+export type { SimContent, SimObjectDef, SimSlotDef } from "./objects/content.js";
+export type { ObjInstance, Rotation } from "./objects/objInstance.js";
+export type { ResolvedSlot } from "./objects/slots.js";
+export { canPlace, footprintTiles, rotateOffset } from "./objects/placement.js";
+export { resolveSlots } from "./objects/slots.js";
 export { TICKS_PER_SIM_MINUTE } from "./core/clock.js";
 export { LOT_SIZE } from "./world/lot.js";
 export { TUNING } from "./tuning.js";
@@ -63,10 +69,11 @@ function makeHandle(state: SimState): SimHandle {
   };
 }
 
-export function createSim(config: { seed: number }): SimHandle {
-  return makeHandle(createState(config.seed));
+/** Content is optional plain data (see objects/content.ts); defaults to none. */
+export function createSim(config: { seed: number; content?: SimContent }): SimHandle {
+  return makeHandle(createState(config.seed, config.content));
 }
 
-export function loadSim(data: SerializedState): SimHandle {
-  return makeHandle(deserializeState(data));
+export function loadSim(data: SerializedState, content?: SimContent): SimHandle {
+  return makeHandle(deserializeState(data, content));
 }

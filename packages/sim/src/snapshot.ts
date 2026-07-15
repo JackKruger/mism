@@ -21,6 +21,15 @@ export interface PersonView {
   status: PersonStatus;
 }
 
+export interface ObjectView {
+  id: number;
+  defId: string;
+  x: number;
+  y: number;
+  rotation: number;
+  objState: string;
+}
+
 export interface SimSnapshot {
   tick: number;
   speed: GameSpeed;
@@ -29,6 +38,7 @@ export interface SimSnapshot {
   timeString: string;
   lotSize: number;
   people: PersonView[];
+  objects: ObjectView[];
   /** SimEvents newer than the `sinceTick` passed to snapshot() (default: all retained). */
   events: SimEvent[];
 }
@@ -57,6 +67,14 @@ export function buildSnapshot(state: SimState, sinceTick = -1): SimSnapshot {
         status: p.status,
       };
     }),
+    objects: [...state.objects.values()].map((o) => ({
+      id: o.id,
+      defId: o.defId,
+      x: o.tile.x,
+      y: o.tile.y,
+      rotation: o.rotation,
+      objState: o.objState,
+    })),
     events: state.eventLog.since(sinceTick),
   };
 }
