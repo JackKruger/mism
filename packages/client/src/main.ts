@@ -19,6 +19,7 @@ import { CameraController } from "./input/camera.js";
 import { HALF_H, HALF_W, screenToTile, worldToScreen } from "./render/iso.js";
 import { Hud } from "./ui/hud.js";
 import { NeedsPanel } from "./ui/needsPanel.js";
+import { PieMenu, prettifyInteractionName } from "./ui/pieMenu.js";
 import { showToast } from "./ui/toast.js";
 
 /** Starter kit layout: fridge at (28,28), further defs 4 tiles apart along the row. */
@@ -144,40 +145,60 @@ async function boot(): Promise<void> {
   });
 
   // --- Input ----------------------------------------------------------------
-  /** Object (and its first interaction) under a tile, from the latest snapshot. */
-  const objectAt = (tx: number, ty: number): { id: number; interaction: string } | null => {
+  /** Pie-menu labels: interaction id → prettified display name. */
+  const interactionLabels = new Map(
+    bundle.interactions.map((d) => [d.id, prettifyInteractionName(d.name)]),
+  );
+  const pieMenu = new PieMenu();
+
+  /** Object (and all its interactions) under a tile, from the latest snapshot. */
+  const objectAt = (tx: number, ty: number): { id: number; interactions: string[] } | null => {
     if (!latest) return null;
     for (const ov of latest.objects) {
       const def = defs.get(ov.defId);
       if (!def) continue;
       const tiles = footprintTiles(def, { x: ov.x, y: ov.y }, ov.rotation as Rotation);
-      if (!tiles.some((t) => t.x === tx && t.y === ty)) continue;
-      const interaction = def.interactions[0];
-      if (interaction !== undefined) return { id: ov.id, interaction };
+      if (tiles.some((t) => t.x === tx && t.y === ty)) {
+        return { id: ov.id, interactions: def.interactions };
+      }
     }
     return null;
   };
 
-  const onTileClick = async (tx: number, ty: number): Promise<void> => {
+  const queueInteraction = async (object: ObjectId, interaction: string): Promise<void> => {
+    const result = await sim.send({ t: "QueueInteraction", person: personId, object, interaction });
+    if (!result.ok) showToast(`Can't do that (${result.error})`);
+  };
+
+  const walkTo = async (tx: number, ty: number): Promise<void> => {
+    const result = await sim.send({ t: "WalkTo", person: personId, x: tx, y: ty });
+    if (!result.ok) showToast(`Can't walk there (${result.error})`);
+  };
+
+  /** Object click → pie menu at the pointer; empty ground → instant walk. */
+  const onTileClick = (tx: number, ty: number, screenX: number, screenY: number): void => {
     const target = objectAt(tx, ty);
-    const result = target
-      ? await sim.send({
-          t: "QueueInteraction",
-          person: personId,
-          object: target.id as ObjectId,
-          interaction: target.interaction,
-        })
-      : await sim.send({ t: "WalkTo", person: personId, x: tx, y: ty });
-    if (!result.ok) {
-      showToast(target ? `Can't do that (${result.error})` : `Can't walk there (${result.error})`);
+    if (!target) {
+      void walkTo(tx, ty);
+    } else if (target.interactions.length === 0) {
+      pieMenu.openEmpty(screenX, screenY);
+    } else {
+      const options = target.interactions.map((id) => ({
+        id,
+        label: interactionLabels.get(id) ?? prettifyInteractionName(id),
+      }));
+      pieMenu.open(screenX, screenY, options, (interaction) => {
+        void queueInteraction(target.id as ObjectId, interaction);
+      });
     }
   };
 
   const camera = new CameraController(world, app.canvas, (screenX, screenY) => {
+    if (pieMenu.consumeSwallowedClick()) return; // this click only dismissed the menu
     const local = cameraToWorld(screenX, screenY);
     const tile = screenToTile(local.x, local.y);
     if (tile.x < 0 || tile.y < 0 || tile.x >= LOT_SIZE || tile.y >= LOT_SIZE) return;
-    void onTileClick(tile.x, tile.y);
+    onTileClick(tile.x, tile.y, screenX, screenY);
   });
 
   const cameraToWorld = (sx: number, sy: number) => camera.toWorldPx(sx, sy);
