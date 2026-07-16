@@ -1,8 +1,9 @@
 import type { ObjectId } from "../core/ids.js";
-import type { Person } from "../people/person.js";
+import type { ActiveInteraction, Person } from "../people/person.js";
 import type { SimState } from "../state.js";
 import { MOTIVES, clampMotive, type MotiveName } from "../people/needs.js";
 import { TICKS_PER_SIM_MINUTE } from "../core/clock.js";
+import { blocksTiles, placeObject, removeObject } from "../objects/placement.js";
 import { findPath } from "../path/astar.js";
 import { personTile } from "../people/person.js";
 import { resolveSlots } from "../objects/slots.js";
@@ -14,7 +15,11 @@ import { suppressAd } from "./autonomy.js";
  *   queueExecutorSystem — pops the queue head, routes the person to the slot;
  *   interactionRunnerSystem — detects arrival, then runs the statechart.
  *
- * v1 verb set: only `anim:<name>` (sets person.activity for the renderer).
+ * Verbs execute once on state ENTRY (stateTicks 0), not every tick; perMin
+ * deltas continue to apply per tick. Current verb set (C-109, §4):
+ *   anim:<name>     — set person.activity (persists until the interaction ends)
+ *   spawnAt:<defId> — spawn a non-blocking object at the person's tile
+ *   destroyObject   — remove the interaction's target object
  * Unknown verbs are ignored so content can be authored ahead of engine verbs.
  */
 
@@ -38,6 +43,31 @@ function fail(
   });
   // Failed actions suppress their ad so autonomy doesn't retry immediately (§3.7).
   suppressAd(state, person, object, interaction);
+}
+
+/** Execute a `do` verb on state entry (see verb set above). */
+function runVerb(state: SimState, person: Person, act: ActiveInteraction, verb: string): void {
+  if (verb.startsWith("anim:")) {
+    person.activity = verb.slice("anim:".length);
+    return;
+  }
+  if (verb.startsWith("spawnAt:")) {
+    const def = state.contentIndex.get(verb.slice("spawnAt:".length));
+    // canPlace is bypassed, so only known, non-blocking defs may spawn — a
+    // blocking spawn could trap the spawner or overlap another footprint.
+    if (def !== undefined && !blocksTiles(def)) {
+      placeObject(state, def, personTile(person), 0);
+    }
+    return;
+  }
+  if (verb === "destroyObject") {
+    const obj = state.objects.get(act.object);
+    const def = obj !== undefined ? state.contentIndex.get(obj.defId) : undefined;
+    if (obj !== undefined && def !== undefined) removeObject(state, obj, def);
+    // The statechart keeps running (its next transition is typically $exit).
+    return;
+  }
+  // Unknown verb: ignore.
 }
 
 export function queueExecutorSystem(state: SimState): void {
@@ -152,8 +182,11 @@ export function interactionRunnerSystem(state: SimState): void {
       continue;
     }
 
-    if (stateDef.do !== undefined && stateDef.do.startsWith("anim:")) {
-      person.activity = stateDef.do.slice("anim:".length);
+    // stateTicks is 0 exactly on state entry (reset on transition and on
+    // arrival) — and stays >0 across save/load mid-state, so verbs never
+    // re-run on resume.
+    if (act.stateTicks === 0 && stateDef.do !== undefined) {
+      runVerb(state, person, act, stateDef.do);
     }
 
     if (stateDef.perMin) {

@@ -1,0 +1,11 @@
+{
+  "id": "trash_pile.clean_up",
+  "name": "Clean Up",
+  "ad": { "room": 55 },
+  "requires": [],
+  "slot": 0,
+  "states": {
+    "start": { "do": "anim:clean", "durationMin": 3, "next": "dispose" },
+    "dispose": { "do": "destroyObject", "next": "$exit" }
+  }
+}

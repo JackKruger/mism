@@ -40,18 +40,28 @@ export function footprintTiles(def: SimObjectDef, tile: Tile, rotation: Rotation
   return tiles;
 }
 
-/** True when every footprint tile is in bounds and unblocked (no overlap). */
+/** Whether `def` occupies the nav grid; blocksTile defaults to true (C-109). */
+export const blocksTiles = (def: SimObjectDef): boolean => def.blocksTile !== false;
+
+/**
+ * True when every footprint tile is in bounds and unblocked (no overlap).
+ * lot.blocked only tracks blocking footprints, so collisions with or of
+ * non-blocking clutter are ignored: clutter may share a tile with anything
+ * (including other clutter), and a blocking object may be placed over it.
+ */
 export function canPlace(state: SimState, def: SimObjectDef, tile: Tile, rotation: Rotation): boolean {
+  const blocking = blocksTiles(def);
   for (const t of footprintTiles(def, tile, rotation)) {
     if (!inBounds(state.lot, t.x, t.y)) return false;
-    if (state.lot.blocked[tileIndex(state.lot, t.x, t.y)] !== 0) return false;
+    if (blocking && state.lot.blocked[tileIndex(state.lot, t.x, t.y)] !== 0) return false;
   }
   return true;
 }
 
 /**
  * Create and register an object instance. Caller must have checked canPlace.
- * Marks the footprint blocked and bumps navVersion (invalidates paths).
+ * Blocking defs mark their footprint and bump navVersion (invalidates paths);
+ * non-blocking clutter leaves walkability — and thus navVersion — untouched.
  */
 export function placeObject(state: SimState, def: SimObjectDef, tile: Tile, rotation: Rotation): ObjInstance {
   const id = asObjectId(state.nextEntityId++);
@@ -63,18 +73,22 @@ export function placeObject(state: SimState, def: SimObjectDef, tile: Tile, rota
     objState: "default",
   };
   state.objects.add(id, obj);
-  for (const t of footprintTiles(def, tile, rotation)) {
-    state.lot.blocked[tileIndex(state.lot, t.x, t.y)] = 1;
+  if (blocksTiles(def)) {
+    for (const t of footprintTiles(def, tile, rotation)) {
+      state.lot.blocked[tileIndex(state.lot, t.x, t.y)] = 1;
+    }
+    state.lot.navVersion++;
   }
-  state.lot.navVersion++;
   return obj;
 }
 
-/** Remove an instance: unblock its footprint and bump navVersion. */
+/** Remove an instance; blocking defs unblock their footprint and bump navVersion. */
 export function removeObject(state: SimState, obj: ObjInstance, def: SimObjectDef): void {
-  for (const t of footprintTiles(def, obj.tile, obj.rotation)) {
-    state.lot.blocked[tileIndex(state.lot, t.x, t.y)] = 0;
+  if (blocksTiles(def)) {
+    for (const t of footprintTiles(def, obj.tile, obj.rotation)) {
+      state.lot.blocked[tileIndex(state.lot, t.x, t.y)] = 0;
+    }
+    state.lot.navVersion++;
   }
   state.objects.remove(obj.id);
-  state.lot.navVersion++;
 }

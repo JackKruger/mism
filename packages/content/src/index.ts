@@ -12,6 +12,8 @@ import showerJson from "../data/objects/shower.json";
 import bedJson from "../data/objects/bed.json";
 import sofaJson from "../data/objects/sofa.json";
 import tvJson from "../data/objects/tv.json";
+import dirtyPlateJson from "../data/objects/dirty_plate.json";
+import trashPileJson from "../data/objects/trash_pile.json";
 import fridgeHaveSnackJson from "../data/interactions/fridge_have_snack.json";
 import fridgeHaveMealJson from "../data/interactions/fridge_have_meal.json";
 import stoveCookMealJson from "../data/interactions/stove_cook_meal.json";
@@ -21,6 +23,8 @@ import bedSleepJson from "../data/interactions/bed_sleep.json";
 import sofaSitJson from "../data/interactions/sofa_sit.json";
 import sofaNapJson from "../data/interactions/sofa_nap.json";
 import tvWatchJson from "../data/interactions/tv_watch.json";
+import dirtyPlateCleanUpJson from "../data/interactions/dirty_plate_clean_up.json";
+import trashPileCleanUpJson from "../data/interactions/trash_pile_clean_up.json";
 
 export { MOTIVES, motiveRecord, motiveSchema } from "./schemas/motives.js";
 export type { Motive } from "./schemas/motives.js";
@@ -104,6 +108,8 @@ const OBJECT_SOURCES: RawContentSource[] = [
   { path: "data/objects/bed.json", data: bedJson },
   { path: "data/objects/sofa.json", data: sofaJson },
   { path: "data/objects/tv.json", data: tvJson },
+  { path: "data/objects/dirty_plate.json", data: dirtyPlateJson },
+  { path: "data/objects/trash_pile.json", data: trashPileJson },
 ];
 
 const INTERACTION_SOURCES: RawContentSource[] = [
@@ -116,6 +122,8 @@ const INTERACTION_SOURCES: RawContentSource[] = [
   { path: "data/interactions/sofa_sit.json", data: sofaSitJson },
   { path: "data/interactions/sofa_nap.json", data: sofaNapJson },
   { path: "data/interactions/tv_watch.json", data: tvWatchJson },
+  { path: "data/interactions/dirty_plate_clean_up.json", data: dirtyPlateCleanUpJson },
+  { path: "data/interactions/trash_pile_clean_up.json", data: trashPileCleanUpJson },
 ];
 
 /** Validate the shipped content files and return the typed bundle. */
@@ -153,6 +161,10 @@ export interface SimObject {
    * are harmless to older consumers.
    */
   interactions: string[];
+  /** False = walkable clutter; omitted means true (blocking). */
+  blocksTile?: boolean;
+  /** Mess contribution to RoomScore, 0..10; omitted means 0. */
+  messRating?: number;
 }
 
 export interface SimInteractionState {
@@ -199,16 +211,23 @@ function copyMotiveMap(
  * fields like name/price/cost/requires/onFail are stripped).
  */
 export function toSimContent(bundle: ContentBundle): SimContentBundle {
-  const objects: SimObject[] = bundle.objects.map((o) => ({
-    id: o.id,
-    footprint: [o.footprint[0], o.footprint[1]],
-    slots: o.slots.map((s) => ({
-      type: s.type,
-      offset: [s.offset[0], s.offset[1]],
-      facing: s.facing,
-    })),
-    interactions: [...o.interactions],
-  }));
+  const objects: SimObject[] = bundle.objects.map((o) => {
+    const out: SimObject = {
+      id: o.id,
+      footprint: [o.footprint[0], o.footprint[1]],
+      slots: o.slots.map((s) => ({
+        type: s.type,
+        offset: [s.offset[0], s.offset[1]],
+        facing: s.facing,
+      })),
+      interactions: [...o.interactions],
+    };
+    // Optional physics/scoring fields: forwarded only when authored, so
+    // untouched defs keep the sim's defaults (blocking, mess 0).
+    if (o.blocksTile !== undefined) out.blocksTile = o.blocksTile;
+    if (o.messRating !== undefined) out.messRating = o.messRating;
+    return out;
+  });
 
   const interactions: SimInteraction[] = bundle.interactions.map((def) => {
     const states: Record<string, SimInteractionState> = {};

@@ -55,6 +55,13 @@ export const objectDefSchema = z
       z.number().int().min(1).max(4),
     ]),
     wallMounted: z.boolean().optional(),
+    /**
+     * False = walkable clutter (dirty plates, puddles) that never blocks the
+     * nav grid. Optional; absent means true (blocking).
+     */
+    blocksTile: z.boolean().optional(),
+    /** Mess contribution to RoomScore, 0..10. Optional; absent means 0. */
+    messRating: z.number().int().min(0).max(10).optional(),
     flammability: z.number().int().min(0).max(10),
     /** Catalog motive ratings (comfort 7 etc.), 1..10. */
     motiveRatings: motiveRecord(z.number().int().min(1).max(10)),

@@ -25,8 +25,8 @@ export const clampMotive = (v: number): number =>
   Math.min(MOTIVE_MAX, Math.max(MOTIVE_MIN, v));
 
 /**
- * Fresh needs: all motives full except room, which is environmental
- * (driven by RoomScore later) and rests at 0 for now.
+ * Fresh needs: all motives full except room, which is environmental —
+ * roomScoreSystem overwrites it from the lot's mess every tick (C-110).
  */
 export const createNeeds = (): Needs => ({
   hunger: MOTIVE_MAX,

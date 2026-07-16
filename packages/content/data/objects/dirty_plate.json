@@ -1,0 +1,16 @@
+{
+  "id": "dirty_plate",
+  "name": "Dirty Plate",
+  "price": 0,
+  "category": "misc",
+  "footprint": [1, 1],
+  "blocksTile": false,
+  "messRating": 3,
+  "flammability": 0,
+  "motiveRatings": {},
+  "states": {
+    "default": "objects/dirty_plate/default"
+  },
+  "interactions": ["dirty_plate.clean_up"],
+  "slots": [{ "type": "stand", "offset": [0, 0], "facing": "object" }]
+}

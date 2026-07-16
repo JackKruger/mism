@@ -25,6 +25,15 @@ export interface SimObjectDef {
   slots: readonly SimSlotDef[];
   /** Interaction ids this object offers — its advertisements (S-204). */
   interactions: readonly string[];
+  /**
+   * False = walkable clutter (dirty plates, puddles) that never occupies the
+   * nav grid: placement skips lot.blocked and navVersion (C-109). Default
+   * true. (`| undefined` keeps zod-parsed content structurally assignable
+   * under exactOptionalPropertyTypes.)
+   */
+  blocksTile?: boolean | undefined;
+  /** Mess contribution to RoomScore, 0-10 (C-110). Default 0 (not mess). */
+  messRating?: number | undefined;
 }
 
 import type { MotiveName } from "../people/needs.js";
