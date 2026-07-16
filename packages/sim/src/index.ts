@@ -11,6 +11,7 @@ import { hashValue } from "./save/hash.js";
 import { interactionRunnerSystem, queueExecutorSystem } from "./systems/interactions.js";
 import { movementSystem } from "./systems/movement.js";
 import { needsDecaySystem } from "./systems/needsDecay.js";
+import { roomScoreSystem } from "./systems/roomScore.js";
 
 export type { Command, CommandError, CommandResult } from "./commands.js";
 export type { SimSnapshot, PersonView, ObjectView } from "./snapshot.js";
@@ -44,11 +45,12 @@ export interface SimHandle {
 /**
  * System pipeline — fixed order, one pass per tick. New systems slot in here
  * (see ARCHITECTURE.md §3.3 for the target pipeline):
- * clock → needs decay (incl. mood + failure states) → autonomy →
- * queue executor → movement → interaction runner.
+ * clock → room score → needs decay (incl. mood + failure states) →
+ * autonomy → queue executor → movement → interaction runner.
  */
 function runTick(state: SimState): void {
   advanceTick(state.clock);
+  roomScoreSystem(state); // before needsDecay so mood sees the fresh room value
   needsDecaySystem(state);
   autonomySystem(state);
   queueExecutorSystem(state);

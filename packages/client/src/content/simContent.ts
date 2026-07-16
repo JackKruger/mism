@@ -20,7 +20,7 @@ function mapMotives(src: Partial<Record<Motive, number | undefined>>): Partial<R
 }
 
 function toSimObject(def: ObjectDef): SimObjectDef {
-  return {
+  const out: SimObjectDef = {
     id: def.id,
     footprint: [def.footprint[0], def.footprint[1]],
     slots: def.slots.map((slot) => ({
@@ -30,6 +30,11 @@ function toSimObject(def: ObjectDef): SimObjectDef {
     })),
     interactions: [...def.interactions],
   };
+  // Optional physics/scoring fields: forwarded only when authored, so
+  // untouched defs keep the sim's defaults (blocking, mess 0).
+  if (def.blocksTile !== undefined) out.blocksTile = def.blocksTile;
+  if (def.messRating !== undefined) out.messRating = def.messRating;
+  return out;
 }
 
 function toSimInteraction(def: InteractionDef): SimInteractionDef {

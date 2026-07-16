@@ -11,10 +11,10 @@ import fridgeHaveSnackJson from "../data/interactions/fridge_have_snack.json";
 const clone = <T>(v: T): T => JSON.parse(JSON.stringify(v)) as T;
 
 describe("loadContent", () => {
-  it("validates the shipped M1 catalog into a typed bundle", () => {
+  it("validates the shipped catalog into a typed bundle", () => {
     const bundle = loadContent();
-    expect(bundle.objects).toHaveLength(8);
-    expect(bundle.interactions).toHaveLength(9);
+    expect(bundle.objects).toHaveLength(10);
+    expect(bundle.interactions).toHaveLength(11);
     const fridge = bundle.objects.find((o) => o.id === "fridge_econocool")!;
     expect(fridge.footprint).toEqual([1, 1]);
     expect(fridge.slots[0]!.facing).toBe("object");
@@ -46,6 +46,35 @@ describe("objectDefSchema", () => {
   it("requires a 'default' sprite state", () => {
     const bad = clone(fridgeJson) as { states: Record<string, string> };
     delete bad.states["default"];
+    expect(objectDefSchema.safeParse(bad).success).toBe(false);
+  });
+
+  it("accepts blocksTile and messRating (C-109/C-110 mess fields)", () => {
+    const plate = clone(fridgeJson) as Record<string, unknown>;
+    plate["blocksTile"] = false;
+    plate["messRating"] = 3;
+    const result = objectDefSchema.safeParse(plate);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.blocksTile).toBe(false);
+      expect(result.data.messRating).toBe(3);
+    }
+    // Both are optional: the untouched fridge parses with them absent.
+    const plain = objectDefSchema.safeParse(clone(fridgeJson));
+    expect(plain.success).toBe(true);
+    if (plain.success) {
+      expect(plain.data.blocksTile).toBeUndefined();
+      expect(plain.data.messRating).toBeUndefined();
+    }
+  });
+
+  it("rejects out-of-range or non-integer messRating", () => {
+    const bad = clone(fridgeJson) as Record<string, unknown>;
+    bad["messRating"] = 11;
+    expect(objectDefSchema.safeParse(bad).success).toBe(false);
+    bad["messRating"] = -1;
+    expect(objectDefSchema.safeParse(bad).success).toBe(false);
+    bad["messRating"] = 2.5;
     expect(objectDefSchema.safeParse(bad).success).toBe(false);
   });
 });

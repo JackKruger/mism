@@ -1,0 +1,11 @@
+{
+  "id": "dirty_plate.clean_up",
+  "name": "Clean Up",
+  "ad": { "room": 45 },
+  "requires": [],
+  "slot": 0,
+  "states": {
+    "start": { "do": "anim:clean", "durationMin": 2, "next": "dispose" },
+    "dispose": { "do": "destroyObject", "next": "$exit" }
+  }
+}

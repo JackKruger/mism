@@ -25,7 +25,7 @@ export const TUNING = {
      * Base decay in points per sim-minute. Chosen so a full (+100) motive
      * empties (-100) in the listed sim-hours for a neutral personality:
      * hunger 16h, energy 18h, comfort 12h, fun 14h, social 24h, hygiene 20h,
-     * bladder 8h. room is environmental (RoomScore, later) and never decays.
+     * bladder 8h. room is environmental (roomScoreSystem) and never decays.
      * Activity modifiers (×activityMod, §3.5) arrive with interactions (S-203).
      */
     baseDecayPerMinute: {
@@ -52,6 +52,15 @@ export const TUNING = {
   mood: {
     /** curve() slope below 0 — "pain hurts more" (§3.5). */
     negativeCurveSlope: 1.5,
+  },
+
+  room: {
+    /**
+     * RoomScore v1 (C-110): room = clamp(Σ messRating × -this, -100, 0),
+     * lot-wide. E.g. a dirty plate (mess 3) costs 12 room; ~8 mess points
+     * push room past the have-nothing baseline people notice in mood.
+     */
+    messPenaltyPerPoint: 4,
   },
 
   autonomy: {

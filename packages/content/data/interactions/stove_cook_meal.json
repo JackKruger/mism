@@ -11,8 +11,9 @@
       "do": "anim:eat",
       "perMin": { "hunger": 9 },
       "untilMotive": { "motive": "hunger", "gte": 100 },
-      "next": "$exit"
-    }
+      "next": "finish"
+    },
+    "finish": { "do": "spawnAt:dirty_plate", "next": "$exit" }
   },
   "interruptible": { "below": { "bladder": -80 } }
 }
