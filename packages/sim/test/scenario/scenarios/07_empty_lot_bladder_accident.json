@@ -1,0 +1,10 @@
+{
+  "name": "empty lot: bladder accident occurs within 10 sim-hours",
+  "seed": 77,
+  "useCatalog": true,
+  "people": [{ "name": "Stranded", "tile": [32, 32] }],
+  "assertions": [
+    { "type": "eventOccurred", "eventType": "BladderAccident", "person": 0, "byMin": 600 },
+    { "type": "eventNever", "eventType": "Death", "withinMin": 600 }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "name": "two-person furnished lot: both alive and coping after 24 sim-hours",
+  "seed": 1010,
+  "useCatalog": true,
+  "objects": [
+    { "defId": "fridge_econocool", "tile": [10, 10], "rotation": 0 },
+    { "defId": "stove_sizzleworks", "tile": [12, 10], "rotation": 0 },
+    { "defId": "counter_plainview", "tile": [14, 10], "rotation": 0 },
+    { "defId": "toilet_comfyflush", "tile": [20, 10], "rotation": 0 },
+    { "defId": "shower_drenchmaster", "tile": [22, 10], "rotation": 0 },
+    { "defId": "bed_dreamtime", "tile": [10, 20], "rotation": 0 },
+    { "defId": "sofa_sagfree", "tile": [16, 20], "rotation": 0 },
+    { "defId": "tv_tubevision", "tile": [16, 16], "rotation": 0 }
+  ],
+  "people": [
+    { "name": "Aria", "tile": [15, 15], "personality": { "active": 7, "playful": 3 } },
+    { "name": "Bodhi", "tile": [25, 25], "personality": { "neat": 3, "playful": 8 } }
+  ],
+  "assertions": [
+    { "type": "eventNever", "eventType": "Death", "withinMin": 1440 },
+    { "type": "statusIs", "person": 0, "status": "normal", "atMin": 1440 },
+    { "type": "statusIs", "person": 1, "status": "normal", "atMin": 1440 },
+    { "type": "moodAtLeast", "person": 0, "value": -50, "atMin": 1080 },
+    { "type": "moodAtLeast", "person": 1, "value": -50, "atMin": 1080 },
+    { "type": "motiveAtLeast", "person": 0, "motive": "hunger", "value": 0, "atMin": 1440 },
+    { "type": "motiveAtLeast", "person": 1, "motive": "hunger", "value": 0, "atMin": 1440 }
+  ]
+}

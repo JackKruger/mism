@@ -1,0 +1,12 @@
+{
+  "name": "full bladder resolves at the toilet within 20 sim-min",
+  "seed": 22,
+  "useCatalog": true,
+  "objects": [{ "defId": "toilet_comfyflush", "tile": [14, 10], "rotation": 0 }],
+  "people": [{ "name": "Pressa", "tile": [10, 10], "needs": { "bladder": -60 } }],
+  "assertions": [
+    { "type": "motiveAtLeast", "person": 0, "motive": "bladder", "value": 80, "byMin": 20 },
+    { "type": "eventOccurred", "eventType": "InteractionCompleted", "byMin": 20 },
+    { "type": "eventNever", "eventType": "BladderAccident", "withinMin": 20 }
+  ]
+}
