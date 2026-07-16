@@ -1,0 +1,11 @@
+{
+  "name": "bored person watches TV to fun >= 50 within 90 sim-min",
+  "seed": 55,
+  "useCatalog": true,
+  "objects": [{ "defId": "tv_tubevision", "tile": [14, 10], "rotation": 0 }],
+  "people": [{ "name": "Yawna", "tile": [10, 10], "needs": { "fun": -70 } }],
+  "assertions": [
+    { "type": "motiveAtLeast", "person": 0, "motive": "fun", "value": 50, "byMin": 90 },
+    { "type": "eventOccurred", "eventType": "InteractionStarted", "byMin": 15 }
+  ]
+}

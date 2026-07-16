@@ -1,0 +1,10 @@
+{
+  "name": "empty lot: person passes out within 20 sim-hours",
+  "seed": 88,
+  "useCatalog": true,
+  "people": [{ "name": "Wiped", "tile": [32, 32] }],
+  "assertions": [
+    { "type": "eventOccurred", "eventType": "PassedOut", "person": 0, "byMin": 1200 },
+    { "type": "eventNever", "eventType": "Death", "withinMin": 1200 }
+  ]
+}

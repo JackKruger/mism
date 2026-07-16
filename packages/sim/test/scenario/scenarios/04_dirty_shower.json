@@ -1,0 +1,11 @@
+{
+  "name": "dirty person showers to hygiene >= 90 within 60 sim-min",
+  "seed": 44,
+  "useCatalog": true,
+  "objects": [{ "defId": "shower_drenchmaster", "tile": [14, 10], "rotation": 0 }],
+  "people": [{ "name": "Grubby", "tile": [10, 10], "needs": { "hygiene": -80 } }],
+  "assertions": [
+    { "type": "motiveAtLeast", "person": 0, "motive": "hygiene", "value": 90, "byMin": 60 },
+    { "type": "eventOccurred", "eventType": "InteractionCompleted", "byMin": 60 }
+  ]
+}

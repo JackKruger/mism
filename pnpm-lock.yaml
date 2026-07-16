@@ -55,6 +55,9 @@ importers:
 
   packages/sim:
     devDependencies:
+      '@homestead/content':
+        specifier: workspace:*
+        version: link:../content
       typescript:
         specifier: ^5.8.3
         version: 5.9.3

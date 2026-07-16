@@ -1,0 +1,29 @@
+{
+  "name": "walled-off fridge: hungry person gets InteractionFailed(unreachable) within 2 sim-hours",
+  "seed": 99,
+  "useCatalog": true,
+  "objects": [
+    { "defId": "fridge_econocool", "tile": [30, 30], "rotation": 0 },
+    { "defId": "counter_plainview", "tile": [29, 29], "rotation": 0 },
+    { "defId": "counter_plainview", "tile": [30, 29], "rotation": 0 },
+    { "defId": "counter_plainview", "tile": [31, 29], "rotation": 0 },
+    { "defId": "counter_plainview", "tile": [29, 30], "rotation": 0 },
+    { "defId": "counter_plainview", "tile": [31, 30], "rotation": 0 },
+    { "defId": "counter_plainview", "tile": [29, 31], "rotation": 0 },
+    { "defId": "counter_plainview", "tile": [31, 31], "rotation": 0 },
+    { "defId": "counter_plainview", "tile": [29, 32], "rotation": 0 },
+    { "defId": "counter_plainview", "tile": [30, 32], "rotation": 0 },
+    { "defId": "counter_plainview", "tile": [31, 32], "rotation": 0 }
+  ],
+  "people": [{ "name": "Fenced", "tile": [10, 10], "needs": { "hunger": -60 } }],
+  "assertions": [
+    {
+      "type": "eventOccurred",
+      "eventType": "InteractionFailed",
+      "person": 0,
+      "where": { "reason": "unreachable" },
+      "byMin": 120
+    },
+    { "type": "eventNever", "eventType": "InteractionCompleted", "withinMin": 120 }
+  ]
+}

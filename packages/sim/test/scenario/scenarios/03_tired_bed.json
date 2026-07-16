@@ -1,0 +1,15 @@
+{
+  "name": "tired person sleeps and recovers energy >= 90 within 10 sim-hours",
+  "seed": 33,
+  "useCatalog": true,
+  "objects": [
+    { "defId": "bed_dreamtime", "tile": [14, 10], "rotation": 0 },
+    { "defId": "toilet_comfyflush", "tile": [20, 10], "rotation": 0 }
+  ],
+  "people": [{ "name": "Dozer", "tile": [10, 10], "needs": { "energy": -30 } }],
+  "assertions": [
+    { "type": "motiveAtLeast", "person": 0, "motive": "energy", "value": 90, "byMin": 600 },
+    { "type": "eventOccurred", "eventType": "InteractionStarted", "byMin": 15 },
+    { "type": "eventNever", "eventType": "PassedOut", "withinMin": 600 }
+  ]
+}

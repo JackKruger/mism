@@ -1,0 +1,12 @@
+{
+  "name": "hungry person eats from the fridge within 30 sim-min",
+  "seed": 11,
+  "useCatalog": true,
+  "objects": [{ "defId": "fridge_econocool", "tile": [14, 14], "rotation": 0 }],
+  "people": [{ "name": "Testa", "tile": [10, 10], "needs": { "hunger": -60 } }],
+  "assertions": [
+    { "type": "motiveAtLeast", "person": 0, "motive": "hunger", "value": 50, "byMin": 30 },
+    { "type": "eventOccurred", "eventType": "InteractionCompleted", "byMin": 30 },
+    { "type": "eventNever", "eventType": "InteractionFailed", "withinMin": 30 }
+  ]
+}
